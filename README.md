@@ -11,7 +11,7 @@ DockerUnderCursor is a plugin of [Krita](https://krita.org/), it can make any do
 
 ## Preview
 
-![This is an image](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/preview.gif)
+![This is an image](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/Preview.gif)
 
 ## Install
 
