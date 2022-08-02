@@ -11,7 +11,7 @@ Docker Under Cursor 是一款 [Krita](https://krita.org/) 插件，实现了一�
 
 ## 预览
 
-![This is an image](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/preview.gif)
+![This is an image](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/Preview.gif)
 
 ## 安装
 
@@ -27,7 +27,7 @@ Docker Under Cursor 是一款 [Krita](https://krita.org/) 插件，实现了一�
 
 ## 已知问题
 
-- 某些带有滚动条的面板（色板、笔刷预设等）固定窗口上时，在多次进行浮动显示操作后，固定面板的高度会变小。这时请在面板浮动时手动拖拽面板到固定状态，这样再进行切换就正常了。
+- 某些带有滚动条的面板（色板、笔刷预设等）在固定窗口上时，在多次进行浮动显示操作后，固定面板的高度会变小。这时请在面板浮动时手动拖拽面板到固定状态，这样再进行切换就正常了。
 
 ## Dockers名称对照表
 
