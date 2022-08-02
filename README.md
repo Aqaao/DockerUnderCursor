@@ -11,7 +11,7 @@ Docker Under Cursor 是一款 [Krita](https://krita.org/) 插件，实现了一�
 
 ## 预览
 
-![This is an image](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/preview.gif)
+![This is an image](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/Preview.gif)
 
 ## 安装
 
