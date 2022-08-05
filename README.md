@@ -18,7 +18,10 @@ DockerUnderCursor is a plugin of [Krita](https://krita.org/), it can make any do
 - 2022.8.2 relese
 - 2022.8.5 update:
   - work better in show canvas only mode.
-  - now position of brush outline will refresh after floating docker back mainwindow.
+  - now position of cursor outline will refresh after floating docker back mainwindow.
+- 2022.8.5 once more update:
+  - fix the cursor outline refresh not working in multi-view
+  - fix bug that docker flicker when it displayed from hidden
 
 ## Install
 
