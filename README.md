@@ -13,6 +13,13 @@ DockerUnderCursor is a plugin of [Krita](https://krita.org/), it can make any do
 
 ![This is an image](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/Preview.gif)
 
+## Log
+
+- 2022.8.2 relese
+- 2022.8.5 update:
+  - work better in show canvas only mode.
+  - now position of brush outline will refresh after floating docker back mainwindow.
+
 ## Install
 
 1. Click **Code** at the top of this page，then click **Download ZIP** in pop-up menu。
