@@ -1,6 +1,7 @@
 from krita import Krita
-from PyQt5.QtGui import QCursor
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtGui import QCursor, QMouseEvent
+from PyQt5.QtWidgets import QWidget, QOpenGLWidget
+from PyQt5.QtCore import QCoreApplication, QEvent, Qt, QPointF
 
 class DockerToggle():
 
@@ -9,6 +10,7 @@ class DockerToggle():
         self.weiget = None
         self.hidden = False
         self.top = False
+        self.wobj = None
 
     def targetPotion(self):
         pos = QCursor.pos()
@@ -30,11 +32,28 @@ class DockerToggle():
 
     def setToShow(self):
         self.hidden = True
+        if not self.weiget.isFloating():
+            self.weiget.setFloating(True)
         self.weiget.show()
         self.weiget.move(*self.targetPotion())
 
     def setToHidden(self):
         self.weiget.hide()
+
+    def sendMoveEvent(self):
+        if not self.wobj:
+            qwin = Krita.instance().activeWindow().qwindow()
+            pobj = qwin.findChild(QWidget,'view_0')
+            self.wobj = pobj.findChild(QOpenGLWidget)
+        event = QEvent.MouseMove
+        button = Qt.MouseButton.NoButton
+        key = Qt.KeyboardModifier.NoModifier
+        pos_0 = QCursor.pos()
+        pos_1 = self.wobj.mapFromGlobal(pos_0)
+        pos = QPointF(pos_1)
+
+        moveevent = QMouseEvent(event, pos, button, button, key)
+        QCoreApplication.postEvent(self.wobj, moveevent)
     
     def toggleDockerStatus(self):
         if not self.weiget:
@@ -47,5 +66,6 @@ class DockerToggle():
                 self.setToDocked()
             else:
                 self.setToHidden()
+            self.sendMoveEvent()
         else:#If docked.
             self.setToFloating()
