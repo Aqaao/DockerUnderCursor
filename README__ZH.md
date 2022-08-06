@@ -25,7 +25,7 @@ Docker Under Cursor 是一款 [Krita](https://krita.org/) 插件，实现了一�
 
 ## 安装
 
-1. 点击本页面上方的 Code，然后点击 Download ZIP。
+1. 点击主页面上方的 Code，然后点击 Download ZIP。
 2. 打开 Krita，在上方菜单中点击 **工具 \- 脚本 \- 从文件导入 Python 插件**，选中你下载好的压缩文件，点击打开。
 3. 在弹窗中选择**是**，然后**重启 Krita** 即安装完成。
 
