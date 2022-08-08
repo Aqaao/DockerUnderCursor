@@ -5,15 +5,19 @@ from PyQt5.QtCore import QCoreApplication, QEvent, Qt, QPointF
 
 class DockerToggle():
 
+    TRACEMOUSE = Krita.instance().readSetting("DockerUnderCursor", "TraceMousePosition","False")
+
     def __init__(self,name):
         self.name = name
         self.weiget = None
         self.hidden = False
         self.top = False
-        self.wobj = None
+        self.mousepos = None
 
     def targetPotion(self):
         pos = QCursor.pos()
+        if self.mousepos:
+            return (pos.x()-self.mousepos.x(),pos.y()-self.mousepos.y())
         return (pos.x()-self.weiget.width()/2,pos.y()-self.weiget.height()/2)
 
     def setToFloating(self):
@@ -53,6 +57,23 @@ class DockerToggle():
             moveevent = QMouseEvent(event, pos, button, button, key)
             QCoreApplication.postEvent(wobj, moveevent)
     
+    def trackeCursorPosition(self):
+        pos = QCursor.pos()
+        wobj = QApplication.widgetAt(pos)
+        if wobj != None and self.checkParent(wobj):
+            self.mousepos = self.weiget.mapFromGlobal(pos)
+        else:
+            self.mousepos = None
+
+    def checkParent(self,obj):
+        pobj = obj.parent()
+        if pobj == self.weiget:
+            return True
+        elif pobj == None:
+            return False
+        else:
+            return self.checkParent(pobj)
+        
     def toggleDockerStatus(self):
         if not self.weiget:
             self.weiget = Krita.instance().activeWindow().qwindow().findChild(QWidget,self.name)
@@ -60,10 +81,12 @@ class DockerToggle():
         if self.weiget.isHidden():
             self.setToShow()
         elif self.weiget.isFloating():
+            if self.TRACEMOUSE == "True":
+                self.trackeCursorPosition()
             if self.hidden == 0:
                 self.setToDocked()
             else:
                 self.setToHidden()
-            self.sendMoveEvent()
+            self.sendMoveEvent()#refresh position of cursor outline, preventing offset
         else:#If docked.
             self.setToFloating()

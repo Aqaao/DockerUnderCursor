@@ -12,7 +12,8 @@ class SettingPanel(QDialog):
         super().__init__()
 
         # some QCheckBoxs ———→ QVBoxLayout_1 ———→ QGroupBox ———→ QScrollArea ———→ QVBoxLayout_2 ———→ SettingPanel(QDialog)
-        #                                                      QPushButton ————↗
+        #                                                        savebutton ————↗  ↗
+        #                                                              tracecheckbox
 
         self.layout_1 = QVBoxLayout()
         self.dockerlist = Krita.instance().dockers()
@@ -27,12 +28,20 @@ class SettingPanel(QDialog):
         self.scrollarea.setFrameShape(QFrame.NoFrame)
         self.scrollarea.setWidget(self.groupbox)
 
-        self.layout_2 = QVBoxLayout()
+
         self.savebutton = QPushButton("Save")
         self.savebutton.clicked.connect(self.handleSaveButton)
+
+        self.tracecheckbox = QCheckBox("Remember mouse position relative to docker")
+        self.tracecheckbox.setToolTip("If false, the center point of docker will appear at mouse position")
+        if Krita.instance().readSetting("DockerUnderCursor", "TraceMousePosition","False") == "True":
+            self.tracecheckbox.setChecked(True)
+        
+        self.layout_2 = QVBoxLayout()
         self.layout_2.addWidget(self.scrollarea)
         self.layout_2.addWidget(self.savebutton)
-        
+        self.layout_2.addWidget(self.tracecheckbox)
+
         self.setLayout(self.layout_2)
         self.resize(360, 600)
         self.setWindowTitle("DUC Settings (Effective after restarting krita)")
@@ -49,6 +58,7 @@ class SettingPanel(QDialog):
         self.save()
         #ET.indent(self.tree,"    ") #At least python3.9 ,but krita is 3.8 now.
         self.tree.write(self.file, encoding='UTF-8', xml_declaration=True, short_empty_elements=False)
+        Krita.instance().writeSetting("DockerUnderCursor", "TraceMousePosition", str(self.tracecheckbox.isChecked()))
         self.close()
 
     def save(self):
@@ -64,6 +74,9 @@ class SettingPanel(QDialog):
             return True
         else:
             return False
+
+    def writeSetting(self, name, status):
+        Krita.instance().writeSetting("DockerUnderCursor", name, status)
 
     def writeSetting(self, name, status):
         Krita.instance().writeSetting("DockerUnderCursor", name, status)
