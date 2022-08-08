@@ -22,6 +22,8 @@ DockerUnderCursor is a plugin of [Krita](https://krita.org/), it can make any do
 - 2022.8.5 once more update:
   - fix the cursor outline refresh not working in multi-view
   - fix bug that docker flicker when it displayed from hidden
+- 2022.8.8 update:
+  - add function remember mouse position relative to docker.you can enable it in setting panel.![This is an image](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/NewFunction.gif)
 
 ## Install
 

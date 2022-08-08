@@ -22,6 +22,8 @@ Docker Under Cursor 是一款 [Krita](https://krita.org/) 插件，实现了一�
 - 2022.8.5 再次更新：
   - 修复了光标轮廓无法在多视图中刷新的bug
   - 修复了面板从隐藏状态中显示时会闪烁的bug
+- 2022.8.8 更新:
+  - 添加功能，可以记住鼠标相对于面板的位置了。你可以在设置面板选择启用它。![This is an image](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/NewFunction.gif)
 
 ## 安装
 
