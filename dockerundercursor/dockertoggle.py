@@ -1,11 +1,12 @@
 from krita import Krita
 from PyQt5.QtGui import QCursor, QMouseEvent
 from PyQt5.QtWidgets import QWidget, QOpenGLWidget, QApplication
-from PyQt5.QtCore import QCoreApplication, QEvent, Qt, QPointF
+from PyQt5.QtCore import QCoreApplication, QEvent, Qt, QPointF, QPoint
 
 class DockerToggle():
 
     TRACEMOUSE = Krita.instance().readSetting("DockerUnderCursor", "TraceMousePosition","False")
+    CLAMPPOSITION = Krita.instance().readSetting("DockerUnderCursor", "ClampPosition","False")
 
     def __init__(self,name):
         self.name = name
@@ -14,11 +15,10 @@ class DockerToggle():
         self.top = False
         self.mousepos = None
 
-    def targetPotion(self):
-        pos = QCursor.pos()
+    def targetPotion(self,pos):
         if self.mousepos:
-            return (pos.x()-self.mousepos.x(),pos.y()-self.mousepos.y())
-        return (pos.x()-self.weiget.width()/2,pos.y()-self.weiget.height()/2)
+            return QPoint(pos.x()-self.mousepos.x(),pos.y()-self.mousepos.y())
+        return QPoint(pos.x()-self.weiget.width()/2,pos.y()-self.weiget.height()/2)
 
     def setToFloating(self):
         if self.weiget.pos().y() > 0:#If weiget is not top tab, you will get a negative number coordinate.
@@ -27,7 +27,7 @@ class DockerToggle():
             self.top = False
         self.hidden = False
         self.weiget.setFloating(True)
-        self.weiget.move(*self.targetPotion())
+        self.moveDocker()
 
     def setToDocked(self):
         self.weiget.setFloating(False)
@@ -38,7 +38,7 @@ class DockerToggle():
         self.hidden = True
         if not self.weiget.isFloating():
             self.weiget.setFloating(True)
-        self.weiget.move(*self.targetPotion())
+        self.moveDocker()
         self.weiget.show()
 
     def setToHidden(self):
@@ -73,6 +73,26 @@ class DockerToggle():
             return False
         else:
             return self.checkParent(pobj)
+
+    def checkPosition(self,dockerpos):
+        window = Krita.instance().activeWindow().qwindow()
+        rpos = window.mapFromGlobal(dockerpos)
+        if rpos.x() < 0:
+            rpos.setX(0)
+        elif rpos.x() > window.width() - self.weiget.width():
+            rpos.setX(window.width() - self.weiget.width())
+        if rpos.y() < 0:
+            rpos.setY(0)
+        elif rpos.y() > window.height() - self.weiget.height():
+            rpos.setY(window.height() - self.weiget.height())
+        return window.mapToGlobal(rpos)
+
+    def moveDocker(self):
+        dockerpos = self.targetPotion(QCursor.pos())
+        if self.CLAMPPOSITION == "True":
+            self.weiget.move(self.checkPosition(dockerpos))
+        else:
+            self.weiget.move(dockerpos)
         
     def toggleDockerStatus(self):
         if not self.weiget:

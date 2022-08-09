@@ -12,9 +12,10 @@ class SettingPanel(QDialog):
         super().__init__()
 
         # some QCheckBoxs ———→ QVBoxLayout_1 ———→ QGroupBox ———→ QScrollArea ———→ QVBoxLayout_2 ———→ SettingPanel(QDialog)
-        #                                                        savebutton ————↗  ↗
-        #                                                              tracecheckbox
-
+        #                                                        savebutton ————↗  ↗  ↑
+        #                                                              tracecheckbox    |
+        #                                                                        QCheckBox
+        
         self.layout_1 = QVBoxLayout()
         self.dockerlist = Krita.instance().dockers()
         self.addCheckBox()
@@ -36,11 +37,17 @@ class SettingPanel(QDialog):
         self.tracecheckbox.setToolTip("If false, the center point of docker will appear at mouse position")
         if Krita.instance().readSetting("DockerUnderCursor", "TraceMousePosition","False") == "True":
             self.tracecheckbox.setChecked(True)
-        
+
+        self.clampcheckbox = QCheckBox("Keep docker inside the main window")
+        self.clampcheckbox.setToolTip("If false, the docker can appear anywhere on screen, may be obscured")
+        if Krita.instance().readSetting("DockerUnderCursor", "ClampPosition","False") == "True":
+            self.clampcheckbox.setChecked(True)
+
         self.layout_2 = QVBoxLayout()
         self.layout_2.addWidget(self.scrollarea)
         self.layout_2.addWidget(self.savebutton)
         self.layout_2.addWidget(self.tracecheckbox)
+        self.layout_2.addWidget(self.clampcheckbox)
 
         self.setLayout(self.layout_2)
         self.resize(360, 600)
@@ -59,6 +66,7 @@ class SettingPanel(QDialog):
         #ET.indent(self.tree,"    ") #At least python3.9 ,but krita is 3.8 now.
         self.tree.write(self.file, encoding='UTF-8', xml_declaration=True, short_empty_elements=False)
         Krita.instance().writeSetting("DockerUnderCursor", "TraceMousePosition", str(self.tracecheckbox.isChecked()))
+        Krita.instance().writeSetting("DockerUnderCursor", "ClampPosition", str(self.clampcheckbox.isChecked()))
         self.close()
 
     def save(self):

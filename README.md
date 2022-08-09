@@ -24,6 +24,8 @@ DockerUnderCursor is a plugin of [Krita](https://krita.org/), it can make any do
   - fix bug that docker flicker when it displayed from hidden
 - 2022.8.8 update:
   - add function remember mouse position relative to docker.you can enable it in setting panel.![This is an image](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/NewFunction.gif)
+- 2022.8.9 update：
+  - add function limit position of docker, keeping docker from leaving the main window.you can enable it in setting panel
 
 ## Install
 
