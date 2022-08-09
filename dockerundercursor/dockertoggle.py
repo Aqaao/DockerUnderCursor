@@ -21,10 +21,10 @@ class DockerToggle():
         return QPoint(pos.x()-self.weiget.width()/2,pos.y()-self.weiget.height()/2)
 
     def setToFloating(self):
-        if self.weiget.pos().y() > 0:#If weiget is not top tab, you will get a negative number coordinate.
-            self.top = True
-        else:
+        if self.weiget.visibleRegion().isEmpty():
             self.top = False
+        else:
+            self.top = True
         self.hidden = False
         self.weiget.setFloating(True)
         self.moveDocker()

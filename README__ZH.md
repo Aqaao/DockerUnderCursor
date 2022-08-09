@@ -26,6 +26,9 @@ Docker Under Cursor 是一款 [Krita](https://krita.org/) 插件，实现了一�
   - 添加功能，可以记住鼠标相对于面板的位置了。你可以在设置面板选择启用它。![This is an image](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/NewFunction.gif)
 - 2022.8.9 更新：
   - 添加功能，限制面板位置，让面板无法离开主窗口，防止被遮挡。你可以在设置面板选择启用它。
+- 2022.8.9 再次更新：
+  - 修复了在多窗口模式下只有新打开的窗口可以正常运行的bug
+  - 优化代码
 
 ## 安装
 

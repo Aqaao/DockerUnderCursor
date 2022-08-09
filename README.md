@@ -26,6 +26,9 @@ DockerUnderCursor is a plugin of [Krita](https://krita.org/), it can make any do
   - add function remember mouse position relative to docker.you can enable it in setting panel.![This is an image](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/NewFunction.gif)
 - 2022.8.9 update：
   - add function limit position of docker, keeping docker from leaving the main window.you can enable it in setting panel
+- 2022.8.9 one more update:
+  - fix bug in multi-window mode only the newly opened window works properly.
+  - optimized a bit code
 
 ## Install
 

@@ -33,10 +33,11 @@ class DockerUnderCursor(Extension):
     def createDockerToggleActions(self, window):
         tree = ET.parse(SettingPanel.file)
         root = tree.getroot()
+        n = window.qwindow().objectName()
 
         for i,v in enumerate(root.findall(".//Action/text")):
-            setattr(self, "action_{0}".format(i), DockerToggle(v.text))
-            window.createAction("duc_{0}".format(v.text), "","tools/scripts/DUC menu").triggered.connect(getattr(self, "action_{0}".format(i)).toggleDockerStatus)
+            setattr(self, "action_{0}_{1}".format(n,i), DockerToggle(v.text))
+            window.createAction("duc_{0}".format(v.text), "","tools/scripts/DUC menu").triggered.connect(getattr(self, "action_{0}_{1}".format(n,i)).toggleDockerStatus)
 
 
 Krita.instance().addExtension(DockerUnderCursor(Krita.instance()))
