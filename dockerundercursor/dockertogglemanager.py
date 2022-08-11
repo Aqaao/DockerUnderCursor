@@ -81,6 +81,8 @@ class DockerToggleManager():
         wobj = QApplication.widgetAt(pos)
         if wobj != None and self.checkParent(wobj):
             self.mousepos = self.widget.mapFromGlobal(pos)
+        elif self.AUTOCONCEAL == "True":
+            return
         else:
             self.mousepos = None
 
