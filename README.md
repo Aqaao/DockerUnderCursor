@@ -29,6 +29,10 @@ DockerUnderCursor is a plugin of [Krita](https://krita.org/), it can make any do
 - 2022.8.9 one more update:
   - fix bug in multi-window mode only the newly opened window works properly.
   - optimized a bit code
+- 2022.8.11 update：
+  - add function, docker can auto-hide when mouse leaves the floating docker
+  - improved, optional options can take effect immediately after saving the settings, even without restarting krita
+  - fix bug the moment docker is displayed cursor shape will change to size-cursor。
 
 ## Install
 

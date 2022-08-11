@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QPushButton, QCheckBox, QGroupBox, QScrollArea, QFrame
 from PyQt5.QtCore import Qt
 from os import path
+from .dockertogglemanager import DockerToggleManager
 from krita import Krita
 import xml.etree.ElementTree as ET
 
@@ -43,15 +44,21 @@ class SettingPanel(QDialog):
         if Krita.instance().readSetting("DockerUnderCursor", "ClampPosition","False") == "True":
             self.clampcheckbox.setChecked(True)
 
+        self.autoconcealcheckbox = QCheckBox("Auto conceal docker after mouse leaves")
+        self.autoconcealcheckbox.setToolTip("If false, you need to press shortcut key again to hide docker")
+        if Krita.instance().readSetting("DockerUnderCursor", "AutoConceal","False") == "True":
+            self.autoconcealcheckbox.setChecked(True)
+
         self.layout_2 = QVBoxLayout()
         self.layout_2.addWidget(self.scrollarea)
         self.layout_2.addWidget(self.savebutton)
         self.layout_2.addWidget(self.tracecheckbox)
         self.layout_2.addWidget(self.clampcheckbox)
+        self.layout_2.addWidget(self.autoconcealcheckbox)
 
         self.setLayout(self.layout_2)
-        self.resize(360, 600)
-        self.setWindowTitle("DUC Settings (Effective after restarting krita)")
+        self.resize(380, 800)
+        self.setWindowTitle("Settings (change docker list need restart krita)")
 
     def addCheckBox(self):
         for i,v in enumerate(self.dockerlist):
@@ -66,7 +73,14 @@ class SettingPanel(QDialog):
         #ET.indent(self.tree,"    ") #At least python3.9 ,but krita is 3.8 now.
         self.tree.write(self.file, encoding='UTF-8', xml_declaration=True, short_empty_elements=False)
         Krita.instance().writeSetting("DockerUnderCursor", "TraceMousePosition", str(self.tracecheckbox.isChecked()))
+        DockerToggleManager.TRACEMOUSE = str(self.tracecheckbox.isChecked())
         Krita.instance().writeSetting("DockerUnderCursor", "ClampPosition", str(self.clampcheckbox.isChecked()))
+        DockerToggleManager.CLAMPPOSITION = str(self.clampcheckbox.isChecked())
+        Krita.instance().writeSetting("DockerUnderCursor", "AutoConceal", str(self.autoconcealcheckbox.isChecked()))
+        DockerToggleManager.AUTOCONCEAL = str(self.autoconcealcheckbox.isChecked())
+        for v in DockerToggleManager.LIST:
+            v.mousepos = None
+            v.setMonitor()
         self.close()
 
     def save(self):

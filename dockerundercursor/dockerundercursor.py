@@ -1,6 +1,6 @@
 from krita import Krita, Extension
 from PyQt5 import QtWidgets
-from .dockertoggle import DockerToggle
+from .dockertogglemanager import DockerToggleManager
 from .settingpanel import SettingPanel
 import xml.etree.cElementTree as ET
 
@@ -36,7 +36,7 @@ class DockerUnderCursor(Extension):
         n = window.qwindow().objectName()
 
         for i,v in enumerate(root.findall(".//Action/text")):
-            setattr(self, "action_{0}_{1}".format(n,i), DockerToggle(v.text))
+            setattr(self, "action_{0}_{1}".format(n,i), DockerToggleManager(v.text))
             window.createAction("duc_{0}".format(v.text), "","tools/scripts/DUC menu").triggered.connect(getattr(self, "action_{0}_{1}".format(n,i)).toggleDockerStatus)
 
 
