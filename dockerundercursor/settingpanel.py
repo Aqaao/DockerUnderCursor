@@ -27,13 +27,9 @@ class SettingPanel(QDialog):
 
         self.scrollarea = QScrollArea()
         self.scrollarea.setAlignment(Qt.AlignHCenter)
-        self.scrollarea.setFrameShape(QFrame.NoFrame)
+        #self.scrollarea.setFrameShape(QFrame.NoFrame)
         self.scrollarea.setWidget(self.groupbox)
-
-
-        self.savebutton = QPushButton("Save")
-        self.savebutton.clicked.connect(self.handleSaveButton)
-
+        
         self.tracecheckbox = QCheckBox("Remember mouse position relative to docker")
         self.tracecheckbox.setToolTip("If false, the center point of docker will appear at mouse position")
         if Krita.instance().readSetting("DockerUnderCursor", "TraceMousePosition","False") == "True":
@@ -48,13 +44,16 @@ class SettingPanel(QDialog):
         self.autoconcealcheckbox.setToolTip("If false, you need to press shortcut key again to hide docker")
         if Krita.instance().readSetting("DockerUnderCursor", "AutoConceal","False") == "True":
             self.autoconcealcheckbox.setChecked(True)
+        
+        self.savebutton = QPushButton("Save")
+        self.savebutton.clicked.connect(self.handleSaveButton)
 
         self.layout_2 = QVBoxLayout()
         self.layout_2.addWidget(self.scrollarea)
-        self.layout_2.addWidget(self.savebutton)
         self.layout_2.addWidget(self.tracecheckbox)
         self.layout_2.addWidget(self.clampcheckbox)
         self.layout_2.addWidget(self.autoconcealcheckbox)
+        self.layout_2.addWidget(self.savebutton)
 
         self.setLayout(self.layout_2)
         self.resize(380, 800)
