@@ -24,7 +24,7 @@ class DockerToggleManager():
         self.LIST.append(self)
 
     def finalSetup(self):
-        self.widget =Krita.instance().activeWindow().qwindow().findChild(QWidget,self.name)
+        self.widget = Krita.instance().activeWindow().qwindow().findChild(QWidget,self.name)
         self.monitor = DockerMonitor(self)
         self.setMonitor()
 
@@ -44,9 +44,10 @@ class DockerToggleManager():
             self.top = False
         else:
             self.top = True
-        self.hidden = False
         self.widget.setFloating(True)
         self.moveDocker()
+        self.hidden = False
+        self.float = True
 
     def setToDocked(self):
         self.widget.setFloating(False)
@@ -59,6 +60,7 @@ class DockerToggleManager():
             self.widget.setFloating(True)
         self.moveDocker()
         self.widget.show()
+        self.float = True
 
     def setToHidden(self):
         self.widget.hide()
@@ -117,30 +119,20 @@ class DockerToggleManager():
     
     #The method is core.
     def toggleDockerStatus(self):
-        if self.widget.isFloating():
+        if self.widget.isHidden():
+            self.setToShow()
+        elif self.widget.isFloating():
             self.dockerReturn()
-        else:
-            self.dockerDisplay()
+        else:#If docked.
+            self.setToFloating()
 
     def dockerReturn(self):
         if self.TRACEMOUSE == "True":
             self.trackeCursorPosition()
-        if self.hidden == 0:
-            self.setToDocked()
-        else:
+        if self.hidden:
             self.setToHidden()
+        else:
+            self.setToDocked()
         #refresh position of cursor outline, preventing offset
         self.sendMoveEvent()
-
         self.float = False
-
-    def dockerDisplay(self):
-        #Prevent cursor shape flicker
-        self.widget.unsetCursor()
-
-        if self.widget.isHidden():
-            self.setToShow()
-        #If docked.
-        else:
-            self.setToFloating()
-        self.float = True
