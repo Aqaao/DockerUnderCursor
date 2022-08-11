@@ -19,7 +19,6 @@ class DockerToggleManager():
         self.top = False
         self.mousepos = None
         self.monitor = None
-        self.float = False
         Krita.instance().notifier().windowCreated.connect(self.finalSetup)
         self.LIST.append(self)
 
@@ -47,7 +46,6 @@ class DockerToggleManager():
         self.widget.setFloating(True)
         self.moveDocker()
         self.hidden = False
-        self.float = True
 
     def setToDocked(self):
         self.widget.setFloating(False)
@@ -60,7 +58,6 @@ class DockerToggleManager():
             self.widget.setFloating(True)
         self.moveDocker()
         self.widget.show()
-        self.float = True
 
     def setToHidden(self):
         self.widget.hide()
@@ -135,4 +132,3 @@ class DockerToggleManager():
             self.setToDocked()
         #refresh position of cursor outline, preventing offset
         self.sendMoveEvent()
-        self.float = False

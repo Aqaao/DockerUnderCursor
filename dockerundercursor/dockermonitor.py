@@ -4,13 +4,13 @@ class  DockerMonitor(QObject):
     
     def __init__(self,obj):
         super().__init__()
-        self.dtm = obj
+        self.dockermanager = obj
 
     def eventFilter(self, obj, event):
-        if self.dtm.float:
+        if self.dockermanager.widget == obj and obj.isFloating():
             #Leaves docker event.
             if event.type() == QEvent.Leave:
-                self.dtm.dockerReturn()
+                self.dockermanager.dockerReturn()
                 return True
             #Block cursor shape toggle.
             elif event.type() == QEvent.MouseMove:
