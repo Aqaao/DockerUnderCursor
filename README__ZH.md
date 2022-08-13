@@ -46,6 +46,8 @@ Docker Under Cursor 是一款 [Krita](https://krita.org/) 插件，实现了一�
   - 添加功能，鼠标离开浮动面板后面板自动隐藏。在设置面板内启用[功能演示](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/auto-hide.gif)
   - 优化，三个可选选项现在可以在保存设置后立即生效，即使不重启krita
   - 修复了面板浮动显示时会有一瞬间光标变成缩放形状的bug。
+- 2022.8.11 修复：
+  - 修复了隐藏面板不能显示的bug。
 - 2022.8.13 修复：
   - 修复了开启面板自动隐藏后无法拖拽面板回到主窗口的bug
 
