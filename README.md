@@ -33,6 +33,8 @@ DockerUnderCursor is a plugin of [Krita](https://krita.org/), it can make any do
   - add function, docker can auto-hide when mouse leaves the floating docker[Function preview](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/auto-hide.gif)
   - improved, optional options can take effect immediately after saving the settings, even without restarting krita
   - fix bug the moment docker is displayed cursor shape will change to size-cursor。
+- 2022.8.13 fix：
+  - fix bug，cant drag floating docker back mainwindow when enable docekr auto-hide.
 
 ## Install
 
