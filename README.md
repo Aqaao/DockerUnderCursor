@@ -9,7 +9,7 @@
 
 DockerUnderCursor is a plugin of [Krita](https://krita.org/), it can make any docker float and display in the mouse position with keyboard shotcuts. Support Plugin Panel, E.g [Pigment.O](https://github.com/EyeOdin/Pigment.O).
 
-Note:This plugin is still under development and improvement, there may be bugs, I will soon fix, if you find bug please update plugin first.
+Note:This plugin is still under development and improvement, there may be bugs, I will soon fix, if you find bug please check log and update plugin.
 
 ## Preview
 
