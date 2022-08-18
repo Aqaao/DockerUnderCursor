@@ -39,6 +39,8 @@ Note:This plugin is still under development and improvement, there may be bugs, 
   - fix bug hidden docker cant enable.
 - 2022.8.13 fix：
   - fix bug，cant drag floating docker back mainwindow when enable docekr auto-hide.
+- 2022.8.18 fix:
+  - fix bug, add two lines of accidentally deleted code, it causes cursor flicker from normal-cursor to size-cursor.
 
 ## Install
 
