@@ -39,6 +39,7 @@ class DockerToggleManager():
         return QPoint(pos.x()-self.widget.width()/2,pos.y()-self.widget.height()/2)
 
     def setToFloating(self):
+        self.widget.unsetCursor()
         if self.widget.visibleRegion().isEmpty():
             self.top = False
         else:
@@ -53,6 +54,7 @@ class DockerToggleManager():
             self.widget.raise_()
 
     def setToShow(self):
+        self.widget.unsetCursor()
         self.hidden = True
         if not self.widget.isFloating():
             self.widget.setFloating(True)
