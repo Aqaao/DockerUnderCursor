@@ -19,18 +19,23 @@ class DockerToggleManager():
         self.top = False
         self.mousepos = None
         self.monitor = None
+        self.action = None
         Krita.instance().notifier().windowCreated.connect(self.finalSetup)
         self.LIST.append(self)
 
     def finalSetup(self):
         self.widget = Krita.instance().activeWindow().qwindow().findChild(QWidget,self.name)
-        self.monitor = DockerMonitor(self)
-        self.setMonitor()
+        if self.widget:
+            self.monitor = DockerMonitor(self)
+            self.setMonitor()
+        else:
+            self.action.triggered.disconnect(self.toggleDockerStatus)
+
 
     def setMonitor(self):
         if self.AUTOCONCEAL == "True":
             self.widget.installEventFilter(self.monitor)
-        if self.AUTOCONCEAL == "False":
+        elif self.AUTOCONCEAL == "False":
             self.widget.removeEventFilter(self.monitor)
 
     def targetPotion(self,pos):
@@ -54,6 +59,7 @@ class DockerToggleManager():
             self.widget.raise_()
 
     def setToShow(self):
+        #avoid cursor flicker
         self.widget.unsetCursor()
         self.hidden = True
         if not self.widget.isFloating():

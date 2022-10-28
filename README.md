@@ -25,14 +25,16 @@ Note:This plugin is still under development and improvement, there may be bugs, 
   - fix the cursor outline refresh not working in multi-view
   - fix bug that docker flicker when it displayed from hidden
 - 2022.8.8 update:
-  - add function remember mouse position relative to docker.you can enable it in setting panel.[Function preview](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/NewFunction.gif)
+  - add function remember mouse position relative to docker.you can enable it in setting panel. 
+  - [Function preview](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/NewFunction.gif)
 - 2022.8.9 update：
   - add function limit position of docker, keeping docker from leaving the main window.you can enable it in setting panel
 - 2022.8.9 one more update:
   - fix bug in multi-window mode only the newly opened window works properly.
   - optimized a bit code
 - 2022.8.11 update：
-  - add function, docker can auto-hide when mouse leaves the floating docker[Function preview](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/auto-hide.gif)
+  - add function, docker can auto-hide when mouse leaves the floating docker. 
+  - [Function preview](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/auto-hide.gif)
   - improved, optional options can take effect immediately after saving the settings, even without restarting krita
   - fix bug the moment docker is displayed cursor shape will change to size-cursor。
 - 2022.8.11 fix：

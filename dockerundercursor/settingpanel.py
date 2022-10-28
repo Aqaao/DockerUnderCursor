@@ -99,9 +99,6 @@ class SettingPanel(QDialog):
     def writeSetting(self, name, status):
         Krita.instance().writeSetting("DockerUnderCursor", name, status)
 
-    def writeSetting(self, name, status):
-        Krita.instance().writeSetting("DockerUnderCursor", name, status)
-
     def removeAction(self):
         for v in self.root[0].findall("Action"):
             self.root[0].remove(v)
