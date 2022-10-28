@@ -9,8 +9,6 @@
 
 Docker Under Cursor 是一款 [Krita](https://krita.org/) 插件，实现了一键让任何 Krita 内部面板浮动显示到鼠标位置，可以让你享受到不用移动数位笔就能随意操作的便利。支持插件面板，例如 [Pigment.O](https://github.com/EyeOdin/Pigment.O) 调色板。
 
-注意：这个插件现在还在开发改进中，可能会出现bug，我会很快修复，如果发现了bug请先检查更新日志并且更新插件。
-
 ## 功能
 
 - 可以为每一个面板设置一个切换显示/隐藏的快捷键
