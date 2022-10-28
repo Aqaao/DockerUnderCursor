@@ -1,4 +1,6 @@
 from PyQt5.QtCore import QObject, QEvent
+from PyQt5.QtGui import QCursor
+from PyQt5.QtWidgets import QApplication
 
 class  DockerMonitor(QObject):
     
@@ -10,8 +12,10 @@ class  DockerMonitor(QObject):
         if self.dockermanager.widget == obj and obj.isFloating():
             #Leaves docker event.
             if event.type() == QEvent.Leave:
-                self.dockermanager.dockerReturn()
-                return True
+                wobj = QApplication.widgetAt(QCursor.pos())
+                if not self.dockermanager.checkParent(wobj):
+                    self.dockermanager.dockerReturn()
+                    return True
             #Block cursor shape toggle.
             elif event.type() == QEvent.MouseMove:
                 if event.pos().x() <= 1 or event.pos().x() >= obj.size().width() - 1:

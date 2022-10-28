@@ -93,6 +93,14 @@ class DockerToggleManager():
         else:
             self.mousepos = None
 
+    def selfIsParent(self):
+        pos = QCursor.pos()
+        wobj = QApplication.widgetAt(pos)
+        if wobj != None and self.checkParent(wobj):
+            return True
+        else:
+            return False
+
     def checkParent(self,obj):
         pobj = obj.parent()
         if pobj == self.widget:

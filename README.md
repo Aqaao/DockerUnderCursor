@@ -41,6 +41,9 @@ DockerUnderCursor is a plugin of [Krita](https://krita.org/), it can make any do
   - fix bug，cant drag floating docker back mainwindow when enable docekr auto-hide.
 - 2022.8.18 fix:
   - fix bug, add two lines of accidentally deleted code, it causes cursor flicker from normal-cursor to size-cursor.
+- 2022.10.28 fix:
+  - fix: block some error
+  - fix: in docker auto-hide mode, open popup menu of floating docker causes docker to hide.
 
 ## Install
 
