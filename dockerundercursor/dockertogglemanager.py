@@ -2,6 +2,7 @@ from krita import Krita
 from PyQt5.QtGui import QCursor, QMouseEvent
 from PyQt5.QtWidgets import QWidget, QOpenGLWidget, QApplication
 from PyQt5.QtCore import QCoreApplication, QEvent, Qt, QPointF, QPoint
+from PyQt5 import QtCore
 from .dockermonitor import DockerMonitor
 
 class DockerToggleManager():
@@ -20,6 +21,11 @@ class DockerToggleManager():
         self.mousepos = None
         self.monitor = None
         self.action = None
+        self.pinned = False
+        self.leave = False
+        self.position = None
+        self.position_normal = None
+        self.position_tab = None
         Krita.instance().notifier().windowCreated.connect(self.finalSetup)
         self.LIST.append(self)
 
@@ -30,6 +36,10 @@ class DockerToggleManager():
             self.setMonitor()
         else:
             self.action.triggered.disconnect(self.toggleDockerStatus)
+        self.widget.visibilityChanged.connect(self.hideDocker)
+        self.widget.topLevelChanged.connect(self.dockDocker)
+        Krita.instance().action('view_show_canvas_only').triggered.connect(self.print)
+        Krita.instance().notifier().windowCreated.disconnect(self.finalSetup)
 
 
     def setMonitor(self):
@@ -135,7 +145,10 @@ class DockerToggleManager():
         if self.widget.isHidden():
             self.setToShow()
         elif self.widget.isFloating():
-            self.dockerReturn()
+            if self.pinned:
+                self.transformPosition()
+            else:
+                self.dockerReturn()
         else:#If docked.
             self.setToFloating()
 
@@ -148,3 +161,37 @@ class DockerToggleManager():
             self.setToDocked()
         #refresh position of cursor outline, preventing offset
         self.sendMoveEvent()
+
+    def transformPosition(self):
+        if self.leave:
+            if self.TRACEMOUSE == "True":
+                self.trackeCursorPosition()
+            self.widget.move(self.position)
+            self.widget.setWindowTitle(self.widget.windowTitle()[0:-1])
+            self.leave = False
+            self.sendMoveEvent()
+        else:
+            self.widget.unsetCursor()
+            self.position = self.widget.pos()
+            self.moveDocker()
+            self.widget.setWindowTitle(self.widget.windowTitle()+"*")
+            self.leave = True
+
+    def cancelPin(self):
+        self.pinned = False
+        if self.leave == True:
+            self.widget.setWindowTitle(self.widget.windowTitle()[:-6])
+            self.leave = False
+        else:
+            self.widget.setWindowTitle(self.widget.windowTitle()[:-5])
+
+    def hideDocker(self,visible):
+        if visible and self.pinned:
+            self.cancelPin()
+
+    def dockDocker(self,toplevel):
+        if not toplevel and self.pinned:
+            self.cancelPin()
+
+    def print(self):
+        QtCore.qDebug(self.name + " " + str(self.widget.pos()))

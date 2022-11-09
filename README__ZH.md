@@ -11,7 +11,8 @@ Docker Under Cursor 是一款 [Krita](https://krita.org/) 插件，实现了一�
 
 ## 功能
 
-- 可以为每一个面板设置一个切换显示/隐藏的快捷键
+- 可以为每一个面板设置一个切换显示/隐藏的快捷键。如果面板停靠在主窗口或者被隐藏，按下切换键面板将出现在鼠标下方。如果面板位于鼠标下方，按下切换键面板将根据之前的状态隐藏或者停靠。
+- 可以设定一个快捷键，按下后将鼠标位置 的浮动面板固定，这样按下面板的切换键就可以让浮动面板从固定时的位置移动到鼠标下。
 - 设置面板内有三个可选设置
   - **[Remember mouse position relative to docker]**
     可以选择记住上次隐藏面板时鼠标的相对位置，否则鼠标位于面板中心。
@@ -22,7 +23,28 @@ Docker Under Cursor 是一款 [Krita](https://krita.org/) 插件，实现了一�
 
 ## 预览
 
-![This is an image](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/Preview.gif)
+快速调出面板
+![Preview](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/Preview.gif)
+记住鼠标相对于面板的位置
+![RememberRelativePosition](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/RememberRelativePosition.gif)
+保持面板位于主窗口内
+![KeepInMainwindow](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/KeepInMainwindow.gif)
+固定浮动面板
+![FixedFloattingDocker](https://github.com/Aqaao/DockerUnderCursor/blob/main/IMAGE/FixedFloattingDocker.gif)
+
+## 安装
+
+1. 点击主页面上方的 Code，然后点击 Download ZIP。
+2. 打开 Krita，在上方菜单中点击 **工具 \- 脚本 \- 从文件导入 Python 插件**，选中你下载好的压缩文件，点击打开。
+3. 在弹窗中选择**是**，然后**重启 Krita** 即安装完成。
+
+## 使用
+
+第一次使用插件需要手动启用各个面板的可用性。点击上方菜单中 **工具 \- 脚本 \- DUC Settings panel** 调出配置面板。勾选上你需要的面板，点击 **Save**，然后再次**重启 Krita**。此时打开**配置 Krita**窗口，在**键盘快捷键**中找到 **Scripts - Docker Under Cursor** ，就可以看到你启用的面板项，因为某些原因（懒）这里没有中文，不知道面板叫啥名请看下面的对照表。为面板显示设置一个快捷键后就可以使用了。
+
+## 已知问题
+
+- 某些带有滚动条的面板（色板、笔刷预设等）固定窗口上时，在多次进行浮动显示操作后，固定面板的高度会变小。这时请在面板浮动时手动拖拽面板到固定状态，这样再进行切换就正常了。
 
 ## 更新日志
 
@@ -53,20 +75,6 @@ Docker Under Cursor 是一款 [Krita](https://krita.org/) 插件，实现了一�
 - 2022.10.28 修复：
   - 屏蔽了一些报错
   - 修复了在悬浮面板自动隐藏的状态下打开面板的弹出菜单会导致面板消失的bug
-
-## 安装
-
-1. 点击主页面上方的 Code，然后点击 Download ZIP。
-2. 打开 Krita，在上方菜单中点击 **工具 \- 脚本 \- 从文件导入 Python 插件**，选中你下载好的压缩文件，点击打开。
-3. 在弹窗中选择**是**，然后**重启 Krita** 即安装完成。
-
-## 使用
-
-第一次使用插件需要手动启用各个面板的可用性。点击上方菜单中 **工具 \- 脚本 \- DUC Settings panel** 调出配置面板。勾选上你需要的面板，点击 **Save**，然后再次**重启 Krita**。此时打开**配置 Krita**窗口，在**键盘快捷键**中找到 **Scripts - Docker Under Cursor** ，就可以看到你启用的面板项，因为某些原因（懒）这里没有中文，不知道面板叫啥名请看下面的对照表。为面板显示设置一个快捷键后就可以使用了。
-
-## 已知问题
-
-- 某些带有滚动条的面板（色板、笔刷预设等）固定窗口上时，在多次进行浮动显示操作后，固定面板的高度会变小。这时请在面板浮动时手动拖拽面板到固定状态，这样再进行切换就正常了。
 
 ## Dockers名称对照表
 

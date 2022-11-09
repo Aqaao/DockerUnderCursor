@@ -26,6 +26,9 @@ class DockerUnderCursor(Extension):
         action_2 = window.createAction("settingpanel", "DUC setting panel","tools/scripts")
         action_2.triggered.connect(self.getSettingPanel)
 
+        action_3 = window.createAction("pindocker", "DUC pin docker","tools/scripts")
+        action_3.triggered.connect(self.pinDocker)
+
     def getSettingPanel(self):
         setting = SettingPanel()
         setting.exec()
@@ -41,5 +44,14 @@ class DockerUnderCursor(Extension):
             action.triggered.connect(toggler.toggleDockerStatus)
             toggler.action = action
 
+    def pinDocker(self):
+        for d in DockerToggleManager.LIST:
+            if d.selfIsParent() and d.widget.isFloating():
+                if d.pinned == False:
+                    d.pinned = True
+                    d.widget.setWindowTitle(d.widget.windowTitle()+"(pin)")
+                else:
+                    d.cancelPin()
+                break
 
 Krita.instance().addExtension(DockerUnderCursor(Krita.instance()))

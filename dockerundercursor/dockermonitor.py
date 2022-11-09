@@ -7,14 +7,25 @@ class  DockerMonitor(QObject):
     def __init__(self,obj):
         super().__init__()
         self.dockermanager = obj
+        self.mousepressed = False
 
     def eventFilter(self, obj, event):
-        if self.dockermanager.widget == obj and obj.isFloating():
+        if event.type() == QEvent.MouseButtonPress:
+            self.mousepressed = True
+        if event.type() == QEvent.MouseButtonRelease:
+            self.mousepressed = False
+        if self.dockermanager.widget == obj and obj.isFloating() and not self.mousepressed:
             #Leaves docker event.
             if event.type() == QEvent.Leave:
                 wobj = QApplication.widgetAt(QCursor.pos())
-                if not self.dockermanager.checkParent(wobj):
-                    self.dockermanager.dockerReturn()
+                if not wobj or not self.dockermanager.checkParent(wobj):
+                    if self.dockermanager.pinned:
+                        if self.dockermanager.leave:
+                            self.dockermanager.transformPosition()
+                        else:
+                            return False
+                    else:
+                        self.dockermanager.dockerReturn()
                     return True
             #Block cursor shape toggle.
             elif event.type() == QEvent.MouseMove:

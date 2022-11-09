@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ActionCollection version="2" name="Scripts">
+    <Actions category="Scripts">
+        <text>Docker Under Cursor Other</text>
+        <Action name="pindocker">
+            <text>DUC pin docker</text>
+            <shortcut>none</shortcut>
+        </Action>
+    </Actions>
+</ActionCollection>
