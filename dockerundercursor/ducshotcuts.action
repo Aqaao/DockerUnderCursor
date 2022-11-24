@@ -4,7 +4,7 @@
         <text>Docker Under Cursor Other</text>
         <Action name="pindocker">
             <text>DUC pin docker</text>
-            <shortcut>none</shortcut>
+            <shortcut>Ctrl+`</shortcut>
         </Action>
     </Actions>
 </ActionCollection>

@@ -24,8 +24,6 @@ class DockerToggleManager():
         self.pinned = False
         self.leave = False
         self.position = None
-        self.position_normal = None
-        self.position_tab = None
         Krita.instance().notifier().windowCreated.connect(self.finalSetup)
         self.LIST.append(self)
 
@@ -38,7 +36,6 @@ class DockerToggleManager():
             self.action.triggered.disconnect(self.toggleDockerStatus)
         self.widget.visibilityChanged.connect(self.hideDocker)
         self.widget.topLevelChanged.connect(self.dockDocker)
-        Krita.instance().action('view_show_canvas_only').triggered.connect(self.print)
         Krita.instance().notifier().windowCreated.disconnect(self.finalSetup)
 
 
@@ -93,6 +90,11 @@ class DockerToggleManager():
             moveevent = QMouseEvent(event, pos, button, button, key)
             QCoreApplication.postEvent(wobj, moveevent)
     
+    def sendLeaveEvent(self):
+        pos_0 = QCursor.pos()
+        wobj = QApplication.widgetAt(pos_0)
+        QCoreApplication.postEvent(wobj, QEvent(QEvent.Leave))
+
     def trackeCursorPosition(self):
         pos = QCursor.pos()
         wobj = QApplication.widgetAt(pos)
@@ -153,6 +155,7 @@ class DockerToggleManager():
             self.setToFloating()
 
     def dockerReturn(self):
+        self.sendLeaveEvent()
         if self.TRACEMOUSE == "True":
             self.trackeCursorPosition()
         if self.hidden:
@@ -166,18 +169,21 @@ class DockerToggleManager():
         if self.leave:
             if self.TRACEMOUSE == "True":
                 self.trackeCursorPosition()
+            self.sendLeaveEvent()
             self.widget.move(self.position)
             self.widget.setWindowTitle(self.widget.windowTitle()[0:-1])
             self.leave = False
             self.sendMoveEvent()
         else:
             self.widget.unsetCursor()
+            self.leave = True
             self.position = self.widget.pos()
             self.moveDocker()
             self.widget.setWindowTitle(self.widget.windowTitle()+"*")
-            self.leave = True
 
     def cancelPin(self):
+        if Krita.instance().action('view_show_canvas_only').isChecked() != self.pin_canvas_only:
+            pass
         self.pinned = False
         if self.leave == True:
             self.widget.setWindowTitle(self.widget.windowTitle()[:-6])
@@ -192,6 +198,3 @@ class DockerToggleManager():
     def dockDocker(self,toplevel):
         if not toplevel and self.pinned:
             self.cancelPin()
-
-    def print(self):
-        QtCore.qDebug(self.name + " " + str(self.widget.pos()))

@@ -49,6 +49,8 @@ class DockerUnderCursor(Extension):
             if d.selfIsParent() and d.widget.isFloating():
                 if d.pinned == False:
                     d.pinned = True
+                    d.pin_canvas_only = Krita.instance().action('view_show_canvas_only').isChecked()
+                    d.position = d.widget.pos()
                     d.widget.setWindowTitle(d.widget.windowTitle()+"(pin)")
                 else:
                     d.cancelPin()
