@@ -79,7 +79,7 @@ class SettingPanel(QDialog):
         DockerToggleManager.AUTOCONCEAL = str(self.autoconcealcheckbox.isChecked())
         for v in DockerToggleManager.LIST:
             v.mousepos = None
-            v.setMonitor()
+            v.setAutoConceal()
         self.close()
 
     def save(self):

@@ -1,37 +1,42 @@
 from PyQt5.QtCore import QObject, QEvent
 from PyQt5.QtGui import QCursor
 from PyQt5.QtWidgets import QApplication
-
+from . import qt_event
 class  DockerMonitor(QObject):
-    
+
     def __init__(self,obj):
         super().__init__()
-        self.dockermanager = obj
-        self.mousepressed = False
+        self.docker_manager = obj
+        self.mouse_pressed = False
+        self.auto_conceal = False
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.MouseButtonPress:
-            self.mousepressed = True
+            self.mouse_pressed = True
         if event.type() == QEvent.MouseButtonRelease:
-            self.mousepressed = False
-        # if event.type() == QEvent.Move and self.dockermanager.pinned and not self.dockermanager.leave:
-        #     self.dockermanager.position = self.dockermanager.widget.pos()
-        if self.dockermanager.widget == obj and obj.isFloating() and not self.mousepressed:
-            #Leaves docker event.
-            if event.type() == QEvent.Leave:
-                wobj = QApplication.widgetAt(QCursor.pos())
-                if not wobj or not self.dockermanager.checkParent(wobj):
-                    if self.dockermanager.pinned:
-                        if self.dockermanager.leave:
-                            self.dockermanager.transformPosition()
+            self.mouse_pressed = False
+        #---DEBUG---#if self.docker_manager.name == "KisLayerBox":
+        #---DEBUG---#    QtCore.qDebug(qt_event.event_lookup[str(event.type())])'''
+        if event.type() == QEvent.Move and self.docker_manager.pinned and self.mouse_pressed:
+            Application.activeWindow().activeView().showFloatingMessage("Unpin.",Application.icon('warning'),1000,1)
+            self.docker_manager.cancelPin()
+        if self.auto_conceal:
+            if self.docker_manager.widget == obj and obj.isFloating() and not self.mouse_pressed:
+                #Leaves docker event.
+                if event.type() == QEvent.Leave:
+                    wobj = QApplication.widgetAt(QCursor.pos())
+                    if not wobj or not self.docker_manager.checkParent(wobj):
+                        if self.docker_manager.pinned:
+                            if self.docker_manager.leave:
+                                self.docker_manager.transformPosition()
+                            else:
+                                return False
                         else:
-                            return False
-                    else:
-                        self.dockermanager.dockerReturn()
-            #Block cursor shape toggle.
-            elif event.type() == QEvent.MouseMove:
-                if event.pos().x() <= 1 or event.pos().x() >= obj.size().width() - 1:
-                    return True
-                elif event.pos().y() <= 1 or event.pos().y() >= obj.size().height() - 1:
-                    return True
+                            self.docker_manager.dockerReturn()
+                #Block cursor shape toggle.
+                elif event.type() == QEvent.MouseMove:
+                    if event.pos().x() <= 1 or event.pos().x() >= obj.size().width() - 1:
+                        return True
+                    elif event.pos().y() <= 1 or event.pos().y() >= obj.size().height() - 1:
+                        return True
         return False
