@@ -46,7 +46,7 @@ class DockerUnderCursor(Extension):
 
     def pinDocker(self):
         for d in DockerToggleManager.LIST:
-            if d.selfIsParent() and d.widget.isFloating():
+            if d.selfIsParent():
                 if d.pinned == False:
                     d.pin()
                 else:

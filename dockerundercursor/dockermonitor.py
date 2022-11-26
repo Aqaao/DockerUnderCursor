@@ -1,6 +1,7 @@
 from PyQt5.QtCore import QObject, QEvent
 from PyQt5.QtGui import QCursor
 from PyQt5.QtWidgets import QApplication
+from PyQt5 import QtCore
 from . import qt_event
 class  DockerMonitor(QObject):
 
@@ -16,7 +17,7 @@ class  DockerMonitor(QObject):
         if event.type() == QEvent.MouseButtonRelease:
             self.mouse_pressed = False
         #---DEBUG---#if self.docker_manager.name == "KisLayerBox":
-        #---DEBUG---#    QtCore.qDebug(qt_event.event_lookup[str(event.type())])'''
+        #---DEBUG---#    QtCore.qDebug(qt_event.event_lookup.get(str(event.type())))
         if event.type() == QEvent.Move and self.docker_manager.pinned and self.mouse_pressed:
             Application.activeWindow().activeView().showFloatingMessage("Unpin.",Application.icon('warning'),1000,1)
             self.docker_manager.cancelPin()
