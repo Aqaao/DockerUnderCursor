@@ -185,6 +185,7 @@ class DockerToggleManager():
         else:
             self.widget.unsetCursor()
             self.leave = True
+            self.pin_position = self.widget.pos()
             self.moveDocker()
             self.widget.setWindowTitle(self.widget.windowTitle()+"*")
 
