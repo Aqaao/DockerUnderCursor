@@ -16,11 +16,8 @@ class  DockerMonitor(QObject):
             self.mouse_pressed = True
         if event.type() == QEvent.MouseButtonRelease:
             self.mouse_pressed = False
-        #---DEBUG---#if self.docker_manager.name == "KisLayerBox":
-        #---DEBUG---#    QtCore.qDebug(qt_event.event_lookup.get(str(event.type())))
-        if event.type() == QEvent.Move and self.docker_manager.pinned and self.mouse_pressed:
-            Application.activeWindow().activeView().showFloatingMessage("Unpin.",Application.icon('warning'),1000,1)
-            self.docker_manager.cancelPin()
+        # if self.docker_manager.name == "KisLayerBox" and self.docker_manager.widget == obj:
+        #     QtCore.qDebug(qt_event.event_lookup.get(str(event.type())))
         if self.auto_conceal:
             if self.docker_manager.widget == obj and obj.isFloating() and not self.mouse_pressed:
                 #Leaves docker event.

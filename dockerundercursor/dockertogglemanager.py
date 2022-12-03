@@ -36,13 +36,13 @@ class DockerToggleManager():
             self.monitor = DockerMonitor(self)
             self.widget.installEventFilter(self.monitor)
             self.setAutoConceal()
+            self.widget.visibilityChanged.connect(self.resetPin)
         else:
             self.action.triggered.disconnect(self.toggleDockerStatus)
-        self.widget.visibilityChanged.connect(self.hideDocker)
+        # self.widget.visibilityChanged.connect(self.showDocker)
         # self.widget.topLevelChanged.connect(self.dockDocker)
         Krita.instance().notifier().windowCreated.disconnect(self.finalSetup)
-        Krita.instance().action('view_show_canvas_only').triggered.connect(self.restorePin)
-        Krita.instance().action('view_show_canvas_only').triggered.connect(self.checkPinException,type=Qt.DirectConnection)
+        # Krita.instance().action('view_show_canvas_only').triggered.connect(self.checkPinException,type=Qt.DirectConnection)
         #self.loadPinStatus()
 
 
@@ -100,7 +100,7 @@ class DockerToggleManager():
     def sendLeaveEvent(self):
         pos_0 = QCursor.pos()
         wobj = QApplication.widgetAt(pos_0)
-        if self.checkParent(wobj):
+        if wobj != None and self.checkParent(wobj):
             QCoreApplication.postEvent(wobj, QEvent(QEvent.Leave))
 
     def trackeCursorPosition(self):
@@ -188,17 +188,13 @@ class DockerToggleManager():
             self.moveDocker()
             self.widget.setWindowTitle(self.widget.windowTitle()+"*")
 
-    def pin(self, record_status=True):
+    def pin(self):
         if self.widget.isFloating() and not self.widget.isHidden():
             self.pinned = True
             self.widget.setWindowTitle(self.widget.windowTitle()+"(pin)")
             self.pin_position = self.widget.pos()
-            if record_status:
-                self.savePinStatus(clear=False)
-        else:
-            self.savePinStatus(clear=True)
 
-    def cancelPin(self,clear_status=True):
+    def cancelPin(self):
         self.pinned = False
         if self.leave == True:
             self.widget.setWindowTitle(self.widget.windowTitle()[:-6])
@@ -206,36 +202,11 @@ class DockerToggleManager():
         else:
             self.widget.setWindowTitle(self.widget.windowTitle()[:-5])
 
-        if clear_status:
-            self.savePinStatus(clear=True)
-
-    def savePinStatus(self,clear):
-        if Krita.instance().action('view_show_canvas_only').isChecked():
-            if clear:
-                self.pin_status["canvas_only_mode"] = None
-            else:
-                self.pin_status["canvas_only_mode"] = self.widget.pos()
-        else:
-            if clear:
-                self.pin_status["normal_mode"] = None
-            else:
-                self.pin_status["normal_mode"] = self.widget.pos()
+    # def showDocker(self):
+    #     if self.pinned:
+    #         self.widget.setFloating(True)
+    #         self.widget.show()
     
-    def hideDocker(self,visible):
-        if visible and self.pinned:
-            self.cancelPin(False)
-    
-    def restorePin(self):
-        #---DEBUG---#Application.activeWindow().activeView().showFloatingMessage("mode switch.",Application.icon('warning'),1000,1)
-        if self.pin_status["canvas_only_mode"] and Krita.instance().action('view_show_canvas_only').isChecked():
-            self.widget.show()
-            self.widget.setFloating(True)
-            self.widget.move(self.pin_status["canvas_only_mode"])
-            self.pin(False)
-        if self.pin_status["normal_mode"] and not Krita.instance().action('view_show_canvas_only').isChecked():
-            self.widget.move(self.pin_status["normal_mode"])
-            self.pin(False)
-
-    def checkPinException(self):
-        if not self.pinned and self.pin_status:
-            self.savePinStatus(clear=True)
+    def resetPin(self):
+        if self.pinned:
+            self.cancelPin()
