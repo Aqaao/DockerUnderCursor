@@ -11,12 +11,12 @@ DockerUnderCursor is a plugin of [Krita](https://krita.org/), it can make any do
 
 ## Features
 
- -  You can set a shortcut key for each docker to switch between floating and hidden(docked).
- - You can fix the floating docker on the screen so that you can use shortcuts to move the docker between the cursor position and the fixed position. Press the dedicated shortcut key(Default Ctrl+`) on the floating docker you want to fix, and it is fixed.
- - In addition you can set three optional functions.
-   - Remember position of cursor relative to docker when docker was last hidden.
-   - Keep floating docker inside the main window.
-   - Auto-hide docker after cursor leaves docker.
+- You can set a shortcut key for each docker to switch between floating and hidden(docked).
+- You can fix the floating docker on the screen so that you can use shortcuts to move the docker between the cursor position and the fixed position. Press the dedicated shortcut key(Default Ctrl+`) on the floating docker you want to fix, and it is fixed.
+- In addition you can set three optional functions.
+  - Remember position of cursor relative to docker when docker was last hidden.
+  - Keep floating docker inside the main window.
+  - Auto-hide docker after cursor leaves docker.
 
 ## Preview
 
@@ -74,3 +74,6 @@ If it's the first time you use the plugin, you won't find anything in the keyboa
 - 2022.10.28 fix:
   - fix: block some error
   - fix: in docker auto-hide mode, open popup menu of floating docker causes docker to hide.
+- 2022.12.3 update:
+  - fix some error
+  - add new function that fix docker.
