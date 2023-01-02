@@ -54,8 +54,8 @@ class DockerToggleManager():
 
     def targetPotion(self,pos):
         if self.mousepos:
-            return QPoint(pos.x()-self.mousepos.x(),pos.y()-self.mousepos.y())
-        return QPoint(pos.x()-self.widget.width()/2,pos.y()-self.widget.height()/2)
+            return QPoint(int(pos.x()-self.mousepos.x()),int(pos.y()-self.mousepos.y()))
+        return QPoint(int(pos.x()-self.widget.width()/2),int(pos.y()-self.widget.height()/2))
 
     def setToFloating(self):
         self.widget.unsetCursor()
