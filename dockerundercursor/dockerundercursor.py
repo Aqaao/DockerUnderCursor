@@ -1,11 +1,14 @@
 from krita import Krita, Extension
-from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QWidget
 from .dockertogglemanager import DockerToggleManager
 from .settingpanel import SettingPanel
+from .dockermonitor import DockerMonitor
 import xml.etree.cElementTree as ET
 
 
 class DockerUnderCursor(Extension):
+
+    dockers = {}
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -14,11 +17,6 @@ class DockerUnderCursor(Extension):
         pass
 
     def createActions(self, window):
-        # create menu
-        action_menu = window.createAction("DUC menu", "DUC menu", "tools/scripts")
-        menu = QtWidgets.QMenu("DUC menu", window.qwindow())
-        action_menu.setMenu(menu)
-
         # dynamic create docker toggle actions
         self.createDockerToggleActions(window)
 
@@ -26,8 +24,16 @@ class DockerUnderCursor(Extension):
         action_2 = window.createAction("settingpanel", "DUC setting panel","tools/scripts")
         action_2.triggered.connect(self.getSettingPanel)
 
-        action_3 = window.createAction("pindocker", "DUC pin docker","tools/scripts")
+        # create fix docker action
+        action_3 = window.createAction("pindocker", "","")
         action_3.triggered.connect(self.pinDocker)
+
+        # create toggle view mode action
+        action_4 = window.createAction("togglecanvasmode", "DUC only canvas mode","tools/scripts")
+        action_4.triggered.connect(self.toggleCancasMode)
+        
+        Krita.instance().notifier().windowCreated.connect(self.finalSetup)
+        Krita.instance().notifier().imageClosed.connect(self.savePinStatus)
 
     def getSettingPanel(self):
         setting = SettingPanel()
@@ -36,30 +42,61 @@ class DockerUnderCursor(Extension):
     def createDockerToggleActions(self, window):
         tree = ET.parse(SettingPanel.file)
         root = tree.getroot()
-        n = window.qwindow().objectName()
+        #n = window.qwindow().objectName()
 
         for v in root.findall(".//Action/text"):
             toggler = DockerToggleManager(v.text)
-            action = window.createAction("duc_{0}".format(v.text), "","tools/scripts/DUC menu")
+            action = window.createAction("duc_{0}".format(v.text),"","")
             action.triggered.connect(toggler.toggleDockerStatus)
             toggler.action = action
 
     def pinDocker(self):
         for d in DockerToggleManager.LIST:
-            if d.selfIsParent():
+            if d.selfIsParent()[0]:
                 if d.pinned == False:
                     d.pin()
                 else:
                     d.cancelPin()
                 break
 
-    def clearPinStatus(self):
-        pass
+    def toggleCancasMode(self):
+        for d in DockerToggleManager.LIST:
+            if d.pinned:
+                if d.leave:
+                    self.dockers[d] = d.pin_position()
+                else:
+                    self.dockers[d] = d.widget.pos()
+        Krita.instance().action('view_show_canvas_only').trigger()
+
+    def recoveryPinStatus(self):
+        for d,pos in self.dockers.items():
+            d.widget.setFloating(True)
+            d.widget.show()
+            d.widget.move(pos)
+            d.pin()
+        self.dockers = {}
 
     def savePinStatus(self):
-        pass
+        for d in DockerToggleManager.LIST:
+            if d.pinned:
+                Krita.instance().writeSetting("DockerUnderCursor_pin", d.name, "1")
+            else:
+                Krita.instance().writeSetting("DockerUnderCursor_pin", d.name, "0")
 
-    def loadPinStatus(self):
-        pass
+    def finalSetup(self):
+        for d in DockerToggleManager.LIST:
+            d.widget = Krita.instance().activeWindow().qwindow().findChild(QWidget,d.name)
+            if d.widget:
+                d.monitor = DockerMonitor(d) 
+                d.widget.installEventFilter(d.monitor)
+                d.setAutoConceal()
+                d.widget.visibilityChanged.connect(d.resetPin)
+            else:
+                d.action.triggered.disconnect(d.toggleDockerStatus)
+            if Krita.instance().readSetting("DockerUnderCursor_pin", d.name, "0") == "1":
+                d.pin()
+        
+        Krita.instance().action('view_show_canvas_only').triggered.connect(self.recoveryPinStatus)
+        Krita.instance().notifier().windowCreated.disconnect(self.finalSetup)
 
 Krita.instance().addExtension(DockerUnderCursor(Krita.instance()))

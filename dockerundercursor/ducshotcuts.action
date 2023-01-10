@@ -6,5 +6,9 @@
             <text>DUC pin docker</text>
             <shortcut>Ctrl+`</shortcut>
         </Action>
+        <Action name="togglecanvasmode">
+            <text>DUC only canvas mode</text>
+            <shortcut>None</shortcut>
+        </Action>
     </Actions>
 </ActionCollection>

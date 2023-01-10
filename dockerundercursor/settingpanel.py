@@ -57,7 +57,7 @@ class SettingPanel(QDialog):
 
         self.setLayout(self.layout_2)
         self.resize(380, 800)
-        self.setWindowTitle("Settings (change docker list need restart krita)")
+        self.setWindowTitle("Settings")
 
     def addCheckBox(self):
         for i,v in enumerate(self.dockerlist):
@@ -68,8 +68,8 @@ class SettingPanel(QDialog):
         self.tree = ET.parse(self.file)
         self.root = self.tree.getroot()
         self.removeAction()
+        #ET.indent(self.tree,"    ") #At least python3.9
         self.save()
-        #ET.indent(self.tree,"    ") #At least python3.9 ,but krita is 3.8 now.
         self.tree.write(self.file, encoding='UTF-8', xml_declaration=True, short_empty_elements=False)
         Krita.instance().writeSetting("DockerUnderCursor", "TraceMousePosition", str(self.tracecheckbox.isChecked()))
         DockerToggleManager.TRACEMOUSE = str(self.tracecheckbox.isChecked())
