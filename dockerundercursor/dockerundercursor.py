@@ -31,7 +31,7 @@ class DockerUnderCursor(Extension):
         action_3.triggered.connect(self.toggleCancasMode)
         
         Krita.instance().notifier().windowCreated.connect(self.finalSetup)
-        Krita.instance().notifier().imageClosed.connect(self.savePinStatus)
+        # Krita.instance().notifier().applicationClosing.connect(self.savePinStatus)
 
     def getSettingPanel(self):
         setting = SettingPanel()
@@ -74,12 +74,12 @@ class DockerUnderCursor(Extension):
             d.pin()
         DockerToggleManager.PINDOCKERS = {}
 
-    def savePinStatus(self):
-        for d in DockerToggleManager.LIST:
-            if d.pinned:
-                Krita.instance().writeSetting("DockerUnderCursor_pin", d.name, "1")
-            else:
-                Krita.instance().writeSetting("DockerUnderCursor_pin", d.name, "0")
+    # def savePinStatus(self):
+    #     for d in DockerToggleManager.LIST:
+    #         if d.pinned:
+    #             Krita.instance().writeSetting("DockerUnderCursor_pin", d.name, "1")
+    #         else:
+    #             Krita.instance().writeSetting("DockerUnderCursor_pin", d.name, "0")
 
     def finalSetup(self):
         for d in DockerToggleManager.LIST:
@@ -89,8 +89,8 @@ class DockerUnderCursor(Extension):
                 d.widget.installEventFilter(d.monitor)
                 d.setAutoConceal()
                 d.widget.visibilityChanged.connect(d.resetPin)
-                if Krita.instance().readSetting("DockerUnderCursor_pin", d.name, "0") == "1":
-                    d.pin()
+                # if Krita.instance().readSetting("DockerUnderCursor_pin", d.name, "0") == "1":
+                #     d.pin()
             else:
                 d.action.triggered.disconnect(d.toggleDockerStatus)
 
