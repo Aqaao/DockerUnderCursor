@@ -16,14 +16,19 @@ class  DockerMonitor(QObject):
             self.mouse_pressed = True
         if event.type() == QEvent.MouseButtonRelease:
             self.mouse_pressed = False
+            # if self.docker_manager.pinned:
+            #     pos =self.widget.pos()
+            #     if self.pin_position == pos:
+            #         self.pin_position = pos
+        # ==========DEBUG==========
         # if self.docker_manager.name == "KisLayerBox" and self.docker_manager.widget == obj:
         #     QtCore.qDebug(qt_event.event_lookup.get(str(event.type())))
         if self.auto_conceal:
             if self.docker_manager.widget == obj and obj.isFloating() and not self.mouse_pressed:
                 #Leaves docker event.
                 if event.type() == QEvent.Leave:
-                    wobj = QApplication.widgetAt(QCursor.pos())
-                    if not wobj or not self.docker_manager.checkParent(wobj):
+                    reasult = self.docker_manager.selfIsParent()
+                    if not reasult[2] or not reasult[0]:
                         if self.docker_manager.pinned:
                             if self.docker_manager.leave:
                                 self.docker_manager.transformPosition()

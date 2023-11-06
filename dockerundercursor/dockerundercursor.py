@@ -8,8 +8,6 @@ import xml.etree.cElementTree as ET
 
 class DockerUnderCursor(Extension):
 
-    dockers = {}
-
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -21,16 +19,16 @@ class DockerUnderCursor(Extension):
         self.createDockerToggleActions(window)
 
         # create display setting panel action
-        action_2 = window.createAction("settingpanel", "DUC setting panel","tools/scripts")
-        action_2.triggered.connect(self.getSettingPanel)
+        action_1 = window.createAction("settingpanel", "DUC setting panel","tools/scripts")
+        action_1.triggered.connect(self.getSettingPanel)
 
         # create fix docker action
-        action_3 = window.createAction("pindocker", "","")
-        action_3.triggered.connect(self.pinDocker)
+        action_2 = window.createAction("pindocker", "","")
+        action_2.triggered.connect(self.pinDocker)
 
         # create toggle view mode action
-        action_4 = window.createAction("togglecanvasmode", "DUC only canvas mode","tools/scripts")
-        action_4.triggered.connect(self.toggleCancasMode)
+        action_3 = window.createAction("togglecanvasmode", "DUC only canvas mode","tools/scripts")
+        action_3.triggered.connect(self.toggleCancasMode)
         
         Krita.instance().notifier().windowCreated.connect(self.finalSetup)
         Krita.instance().notifier().imageClosed.connect(self.savePinStatus)
@@ -63,18 +61,18 @@ class DockerUnderCursor(Extension):
         for d in DockerToggleManager.LIST:
             if d.pinned:
                 if d.leave:
-                    self.dockers[d] = d.pin_position()
+                    DockerToggleManager.PINDOCKERS[d] = d.pin_position()
                 else:
-                    self.dockers[d] = d.widget.pos()
+                    DockerToggleManager.PINDOCKERS[d] = d.widget.pos()
         Krita.instance().action('view_show_canvas_only').trigger()
 
     def recoveryPinStatus(self):
-        for d,pos in self.dockers.items():
+        for d,pos in DockerToggleManager.PINDOCKERS.items():
             d.widget.setFloating(True)
             d.widget.show()
             d.widget.move(pos)
             d.pin()
-        self.dockers = {}
+        DockerToggleManager.PINDOCKERS = {}
 
     def savePinStatus(self):
         for d in DockerToggleManager.LIST:
@@ -91,10 +89,11 @@ class DockerUnderCursor(Extension):
                 d.widget.installEventFilter(d.monitor)
                 d.setAutoConceal()
                 d.widget.visibilityChanged.connect(d.resetPin)
+                if Krita.instance().readSetting("DockerUnderCursor_pin", d.name, "0") == "1":
+                    d.pin()
             else:
                 d.action.triggered.disconnect(d.toggleDockerStatus)
-            if Krita.instance().readSetting("DockerUnderCursor_pin", d.name, "0") == "1":
-                d.pin()
+
         
         Krita.instance().action('view_show_canvas_only').triggered.connect(self.recoveryPinStatus)
         Krita.instance().notifier().windowCreated.disconnect(self.finalSetup)

@@ -12,11 +12,12 @@ class DockerToggleManager():
     AUTOCONCEAL = Krita.instance().readSetting("DockerUnderCursor", "AutoConceal","False")
 
     LIST = []
+    PINDOCKERS = {}
 
     def __init__(self,name):
         self.name = name
         self.widget = None
-        self.hidden = False
+        self.hidden = True
         self.top = False
         self.mousepos = None
         self.monitor = None
