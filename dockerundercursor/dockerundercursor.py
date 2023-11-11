@@ -92,8 +92,9 @@ class DockerUnderCursor(Extension):
                 # if Krita.instance().readSetting("DockerUnderCursor_pin", d.name, "0") == "1":
                 #     d.pin()
             else:
+                DockerToggleManager.LIST.remove(d)
                 d.action.triggered.disconnect(d.toggleDockerStatus)
-
+                Krita.instance().writeSetting("DockerUnderCursor", d.name, "0")
         
         Krita.instance().action('view_show_canvas_only').triggered.connect(self.recoveryPinStatus)
         Krita.instance().notifier().windowCreated.disconnect(self.finalSetup)

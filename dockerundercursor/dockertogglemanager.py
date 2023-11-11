@@ -1,9 +1,7 @@
 from krita import Krita
 from PyQt5.QtGui import QCursor, QMouseEvent
-from PyQt5.QtWidgets import QWidget, QOpenGLWidget, QApplication
+from PyQt5.QtWidgets import QOpenGLWidget, QApplication
 from PyQt5.QtCore import QCoreApplication, QEvent, Qt, QPointF, QPoint
-from PyQt5 import QtCore
-from .dockermonitor import DockerMonitor
 
 class DockerToggleManager():
 
@@ -28,10 +26,11 @@ class DockerToggleManager():
         self.LIST.append(self)
 
     def setAutoConceal(self):
-        if self.AUTOCONCEAL == "True":
-            self.monitor.auto_conceal = True
-        elif self.AUTOCONCEAL == "False":
-            self.monitor.auto_conceal = False
+        if self.monitor:
+            if self.AUTOCONCEAL == "True":
+                self.monitor.auto_conceal = True
+            elif self.AUTOCONCEAL == "False":
+                self.monitor.auto_conceal = False
 
     def sendMoveEvent(self):
         pos_0 = QCursor.pos()
@@ -135,8 +134,7 @@ class DockerToggleManager():
             self.widget.setFloating(False)
             if self.top:
                 self.widget.raise_()
-        #refresh position of cursor outline, preventing offset
-        self.sendMoveEvent()
+        self.sendMoveEvent() #refresh position of cursor outline, preventing offset
 
     def transformPosition(self):
         if self.leave:
