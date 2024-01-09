@@ -89,6 +89,8 @@ class DockerUnderCursor(Extension):
                 d.widget.installEventFilter(d.monitor)
                 d.setAutoConceal()
                 d.widget.visibilityChanged.connect(d.resetPin)
+                if d.widget.isFloating():
+                    d.widget.titleBarWidget().children()[2].setChecked(False)
                 # if Krita.instance().readSetting("DockerUnderCursor_pin", d.name, "0") == "1":
                 #     d.pin()
             else:
