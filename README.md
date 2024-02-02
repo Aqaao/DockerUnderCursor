@@ -1,7 +1,5 @@
 # Docker Under Cursor
 
-## Language
-
 - [中文](/README__ZH.md)
 - English
 

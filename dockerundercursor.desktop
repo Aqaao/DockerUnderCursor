@@ -3,6 +3,6 @@ Type=Service
 ServiceTypes=Krita/PythonPlugin
 X-KDE-Library=dockerundercursor
 X-Python-2-Compatible=false
-X-Krita-Manual=dockerundercursor_manual.html
+X-Krita-Manual=Manual.html
 Name=dockerundercursor
 Comment=Display docker on cursor position.

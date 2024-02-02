@@ -1,7 +1,5 @@
 # Docker Under Cursor
 
-## 语言
-
 - 中文
 - [English](/README.md)
 
