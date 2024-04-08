@@ -1,5 +1,5 @@
 from krita import Krita, Extension
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QWidget,QAbstractButton
 from .dockertogglemanager import DockerToggleManager
 from .settingpanel import SettingPanel
 from .dockermonitor import DockerMonitor
@@ -31,7 +31,6 @@ class DockerUnderCursor(Extension):
         action_3.triggered.connect(self.toggleCancasMode)
         
         Krita.instance().notifier().windowCreated.connect(self.finalSetup)
-        # Krita.instance().notifier().applicationClosing.connect(self.savePinStatus)
 
     def getSettingPanel(self):
         setting = SettingPanel()
@@ -74,13 +73,6 @@ class DockerUnderCursor(Extension):
             d.pin()
         DockerToggleManager.PINDOCKERS = {}
 
-    # def savePinStatus(self):
-    #     for d in DockerToggleManager.LIST:
-    #         if d.pinned:
-    #             Krita.instance().writeSetting("DockerUnderCursor_pin", d.name, "1")
-    #         else:
-    #             Krita.instance().writeSetting("DockerUnderCursor_pin", d.name, "0")
-
     def finalSetup(self):
         for d in DockerToggleManager.LIST:
             d.widget = Krita.instance().activeWindow().qwindow().findChild(QWidget,d.name)
@@ -90,9 +82,10 @@ class DockerUnderCursor(Extension):
                 d.setAutoConceal()
                 d.widget.visibilityChanged.connect(d.resetPin)
                 if d.widget.isFloating():
-                    d.widget.titleBarWidget().children()[2].setChecked(False)
-                # if Krita.instance().readSetting("DockerUnderCursor_pin", d.name, "0") == "1":
-                #     d.pin()
+                    #reset docker lock status
+                    for i in d.widget.titleBarWidget().children():
+                        if i.__class__ == QAbstractButton and i.toolTip() == "Lock Docker":
+                            i.setChecked(False)
             else:
                 DockerToggleManager.LIST.remove(d)
                 d.action.triggered.disconnect(d.toggleDockerStatus)

@@ -1,6 +1,6 @@
 from krita import Krita
 from PyQt5.QtGui import QCursor, QMouseEvent
-from PyQt5.QtWidgets import QOpenGLWidget, QApplication
+from PyQt5.QtWidgets import QOpenGLWidget, QApplication, QWidget
 from PyQt5.QtCore import QCoreApplication, QEvent, Qt, QPointF, QPoint
 
 class DockerToggleManager():
@@ -102,6 +102,10 @@ class DockerToggleManager():
     
     #The method is core.
     def toggleDockerStatus(self):
+        if not self.widget:# idk why need this check
+            self.widget = Krita.instance().activeWindow().qwindow().findChild(QWidget,self.name)
+            if not self.widget:
+                return
         if self.widget.isHidden():
             self.widget.unsetCursor()#avoid cursor flicker
             self.hidden = True
