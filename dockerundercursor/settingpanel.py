@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QDialog, QVBoxLayout, QPushButton, QCheckBox, QGroup
 from PyQt5.QtCore import Qt
 from os import path
 from .dockertogglemanager import DockerToggleManager
-from krita import Krita
+from krita import *
 import xml.etree.ElementTree as ET
 
 class SettingPanel(QDialog):

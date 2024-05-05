@@ -14,6 +14,7 @@ class DockerToggleManager():
 
     def __init__(self,name):
         self.name = name
+        self.window = None
         self.widget = None
         self.hidden = True
         self.top = False
@@ -138,7 +139,7 @@ class DockerToggleManager():
             self.widget.setFloating(False)
             if self.top:
                 self.widget.raise_()
-        self.sendMoveEvent() #refresh position of cursor outline, preventing offset
+        self.sendMoveEvent() #refresh position of cursor outline
 
     def transformPosition(self):
         if self.leave:

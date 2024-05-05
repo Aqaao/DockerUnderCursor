@@ -75,21 +75,24 @@ class DockerUnderCursor(Extension):
 
     def finalSetup(self):
         for d in DockerToggleManager.LIST:
-            d.widget = Krita.instance().activeWindow().qwindow().findChild(QWidget,d.name)
-            if d.widget:
-                d.monitor = DockerMonitor(d) 
-                d.widget.installEventFilter(d.monitor)
-                d.setAutoConceal()
-                d.widget.visibilityChanged.connect(d.resetPin)
-                if d.widget.isFloating():
-                    #reset docker lock status
-                    for i in d.widget.titleBarWidget().children():
-                        if i.__class__ == QAbstractButton and i.toolTip() == "Lock Docker":
-                            i.setChecked(False)
-            else:
-                DockerToggleManager.LIST.remove(d)
-                d.action.triggered.disconnect(d.toggleDockerStatus)
-                Krita.instance().writeSetting("DockerUnderCursor", d.name, "0")
+            if not d.window:
+                qwin = Krita.instance().activeWindow().qwindow()
+                d.window = qwin.objectName()
+                d.widget = qwin.findChild(QWidget,d.name)
+                if d.widget:
+                    d.monitor = DockerMonitor(d) 
+                    d.widget.installEventFilter(d.monitor)
+                    d.setAutoConceal()
+                    d.widget.visibilityChanged.connect(d.resetPin)
+                    if d.widget.isFloating():
+                        #reset docker lock status
+                        for i in d.widget.titleBarWidget().children():
+                            if i.__class__ == QAbstractButton and i.toolTip() == "Lock Docker":
+                                i.setChecked(False)
+                else:
+                    DockerToggleManager.LIST.remove(d)
+                    d.action.triggered.disconnect(d.toggleDockerStatus)
+                    Krita.instance().writeSetting("DockerUnderCursor", d.name, "0")
         
         Krita.instance().action('view_show_canvas_only').triggered.connect(self.recoveryPinStatus)
         Krita.instance().notifier().windowCreated.disconnect(self.finalSetup)
