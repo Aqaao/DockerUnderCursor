@@ -1,16 +1,19 @@
-from krita import Krita, Extension
-from PyQt5.QtWidgets import QWidget,QAbstractButton
-from .dockertogglemanager import DockerToggleManager
-from .settingpanel import SettingPanel
-from .dockermonitor import DockerMonitor
+from copy import copy
 import xml.etree.cElementTree as ET
+
+from krita import *
+
+from dockerundercursor.ActionKeyFilter import ActionHoldFilter
+from dockerundercursor.DockerVisibilityToggler import DockerVisibilityToggler
+from dockerundercursor.SettingPanel import SettingPanel
+from dockerundercursor.DockerAutoHideFilter import DockerAutoHideFilter
 
 
 class DockerUnderCursor(Extension):
 
     def __init__(self, parent):
         super().__init__(parent)
-
+        
     def setup(self):
         pass
 
@@ -42,13 +45,13 @@ class DockerUnderCursor(Extension):
         #n = window.qwindow().objectName()
 
         for v in root.findall(".//Action/text"):
-            toggler = DockerToggleManager(v.text)
-            action = window.createAction("duc_{0}".format(v.text),"","")
-            action.triggered.connect(toggler.toggleDockerStatus)
+            toggler = DockerVisibilityToggler(v.text)
+            action:QAction = window.createAction("duc_{0}".format(v.text),"","")
+            action.triggered.connect(toggler.trigger)
             toggler.action = action
 
     def pinDocker(self):
-        for d in DockerToggleManager.LIST:
+        for d in DockerVisibilityToggler.LIST:
             if d.selfIsParent()[0]:
                 if d.pinned == False:
                     d.pin()
@@ -57,30 +60,30 @@ class DockerUnderCursor(Extension):
                 break
 
     def toggleCancasMode(self):
-        for d in DockerToggleManager.LIST:
+        for d in DockerVisibilityToggler.LIST:
             if d.pinned:
                 if d.leave:
-                    DockerToggleManager.PINDOCKERS[d] = d.pin_position()
+                    DockerVisibilityToggler.PINDOCKERS[d] = d.pin_position()
                 else:
-                    DockerToggleManager.PINDOCKERS[d] = d.widget.pos()
+                    DockerVisibilityToggler.PINDOCKERS[d] = d.widget.pos()
         Krita.instance().action('view_show_canvas_only').trigger()
 
     def recoveryPinStatus(self):
-        for d,pos in DockerToggleManager.PINDOCKERS.items():
+        for d,pos in DockerVisibilityToggler.PINDOCKERS.items():
             d.widget.setFloating(True)
             d.widget.show()
             d.widget.move(pos)
             d.pin()
-        DockerToggleManager.PINDOCKERS = {}
+        DockerVisibilityToggler.PINDOCKERS = {}
 
     def finalSetup(self):
-        for d in DockerToggleManager.LIST:
+        for d in DockerVisibilityToggler.LIST:
             if not d.window:
                 qwin = Krita.instance().activeWindow().qwindow()
                 d.window = qwin.objectName()
                 d.widget = qwin.findChild(QWidget,d.name)
                 if d.widget:
-                    d.monitor = DockerMonitor(d) 
+                    d.monitor = DockerAutoHideFilter(d) 
                     d.widget.installEventFilter(d.monitor)
                     d.setAutoConceal()
                     d.widget.visibilityChanged.connect(d.resetPin)
@@ -90,7 +93,7 @@ class DockerUnderCursor(Extension):
                             if i.__class__ == QAbstractButton and i.toolTip() == "Lock Docker":
                                 i.setChecked(False)
                 else:
-                    DockerToggleManager.LIST.remove(d)
+                    DockerVisibilityToggler.LIST.remove(d)
                     d.action.triggered.disconnect(d.toggleDockerStatus)
                     Krita.instance().writeSetting("DockerUnderCursor", d.name, "0")
         

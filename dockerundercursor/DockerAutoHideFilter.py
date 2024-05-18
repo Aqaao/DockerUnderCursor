@@ -1,13 +1,15 @@
-from PyQt5.QtCore import QObject, QEvent
-# from PyQt5.QtGui import QCursor
-# from PyQt5.QtWidgets import QApplication
-from PyQt5 import QtCore
+from krita import *
+
 from . import qt_event
-class  DockerMonitor(QObject):
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .DockerVisibilityToggler import DockerVisibilityToggler
+    
+class  DockerAutoHideFilter(QObject):
 
     def __init__(self,obj):
         super().__init__()
-        self.docker_manager = obj
+        self.docker_manager:"DockerVisibilityToggler" = obj
         self.mouse_pressed = False
         self.auto_conceal = False
 
@@ -20,8 +22,7 @@ class  DockerMonitor(QObject):
             if self.docker_manager.widget == obj and obj.isFloating() and not self.mouse_pressed:
                 #Leaves docker event.
                 if event.type() == QEvent.Leave:
-                    reasult = self.docker_manager.selfIsParent()
-                    if not reasult[2] or not reasult[0]:
+                    if not self.docker_manager.cursorAtDocker():
                         if self.docker_manager.pinned:
                             if self.docker_manager.leave:
                                 self.docker_manager.transformPosition()

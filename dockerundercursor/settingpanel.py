@@ -1,9 +1,8 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QPushButton, QCheckBox, QGroupBox, QScrollArea, QFrame
-from PyQt5.QtCore import Qt
 from os import path
-from .dockertogglemanager import DockerToggleManager
-from krita import *
 import xml.etree.ElementTree as ET
+from krita import *
+
+from .DockerVisibilityToggler import DockerVisibilityToggler
 
 class SettingPanel(QDialog):
 
@@ -12,11 +11,6 @@ class SettingPanel(QDialog):
     def __init__(self):
         super().__init__()
 
-        # some QCheckBoxs ———→ QVBoxLayout_1 ———→ QGroupBox ———→ QScrollArea ———→ QVBoxLayout_2 ———→ SettingPanel(QDialog)
-        #                                                        savebutton ————↗  ↗  ↑
-        #                                                              tracecheckbox    |
-        #                                                                        QCheckBox
-        
         self.layout_1 = QVBoxLayout()
         self.dockerlist = Krita.instance().dockers()
         self.addCheckBox()
@@ -72,12 +66,12 @@ class SettingPanel(QDialog):
         self.save()
         self.tree.write(self.file, encoding='UTF-8', xml_declaration=True, short_empty_elements=False)
         Krita.instance().writeSetting("DockerUnderCursor", "TraceMousePosition", str(self.tracecheckbox.isChecked()))
-        DockerToggleManager.TRACEMOUSE = str(self.tracecheckbox.isChecked())
+        DockerVisibilityToggler.TRACEMOUSE = str(self.tracecheckbox.isChecked())
         Krita.instance().writeSetting("DockerUnderCursor", "ClampPosition", str(self.clampcheckbox.isChecked()))
-        DockerToggleManager.CLAMPPOSITION = str(self.clampcheckbox.isChecked())
+        DockerVisibilityToggler.CLAMPPOSITION = str(self.clampcheckbox.isChecked())
         Krita.instance().writeSetting("DockerUnderCursor", "AutoConceal", str(self.autoconcealcheckbox.isChecked()))
-        DockerToggleManager.AUTOCONCEAL = str(self.autoconcealcheckbox.isChecked())
-        for v in DockerToggleManager.LIST:
+        DockerVisibilityToggler.AUTOCONCEAL = str(self.autoconcealcheckbox.isChecked())
+        for v in DockerVisibilityToggler.LIST:
             v.mousepos = None
             v.setAutoConceal()
         self.close()

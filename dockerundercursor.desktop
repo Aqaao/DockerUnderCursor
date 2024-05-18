@@ -6,3 +6,4 @@ X-Python-2-Compatible=false
 X-Krita-Manual=Manual.html
 Name=dockerundercursor
 Comment=Display docker on cursor position.
+
