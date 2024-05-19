@@ -1,20 +1,24 @@
 from krita import *
 
-from .ActionHoldFilter import actionHoldFilter
+from .action_hold_filter import actionHoldFilter
+
 
 class DockerVisibilityToggler():
 
-    TRACEMOUSE = Krita.instance().readSetting("DockerUnderCursor", "TraceMousePosition","False")
-    CLAMPPOSITION = Krita.instance().readSetting("DockerUnderCursor", "ClampPosition","False")
-    AUTOCONCEAL = Krita.instance().readSetting("DockerUnderCursor", "AutoConceal","False")
+    TRACEMOUSE = Krita.instance().readSetting(
+        "DockerUnderCursor", "TraceMousePosition", "False")
+    CLAMPPOSITION = Krita.instance().readSetting(
+        "DockerUnderCursor", "ClampPosition", "False")
+    AUTOCONCEAL = Krita.instance().readSetting(
+        "DockerUnderCursor", "AutoConceal", "False")
 
-    LIST = []
+    INSTANCES:list["DockerVisibilityToggler"] = []
     PINDOCKERS = {}
 
-    def __init__(self,name):
+    def __init__(self, name):
         self.name = name
         self.window = None
-        self.widget:DockWidget = None
+        self.widget: DockWidget = None
         self.hidden = True
         self.top = False
         self.mousepos = None
@@ -23,86 +27,89 @@ class DockerVisibilityToggler():
         self.pinned = False
         self.leave = False
         self.pin_position = None
-        self.LIST.append(self)
+        self.INSTANCES.append(self)
 
     def trigger(self):
-        actionHoldFilter.actionKeyPressed(self)
+        actionHoldFilter.action_key_pressed(self)
 
-    #The method is core.
+    # The method is core.
     def toggleDockerStatus(self):
-        if not self.widget:# idk why need this check
-            self.widget = Krita.instance().activeWindow().qwindow().findChild(QWidget,self.name)
+        if not self.widget:  # idk why need this check
+            self.widget = Krita.instance().activeWindow(
+            ).qwindow().findChild(QWidget, self.name)
             if not self.widget:
                 return
         if self.widget.isHidden():
-            self.widget.unsetCursor()#avoid cursor flicker
+            self.widget.unsetCursor()  # avoid cursor flicker
             self.hidden = True
             if not self.widget.isFloating():
                 self.widget.setFloating(True)
-            self.moveDocker()
+            self._move_docker()
             self.widget.show()
         elif self.widget.isFloating():
             if self.pinned:
-                self.transformPosition()
+                self.translocation()
             else:
-                self.dockerReturn()
-        else:#If docked.
+                self.docker_return()
+        else:  # If docked.
             self.widget.unsetCursor()
             if self.widget.visibleRegion().isEmpty():
                 self.top = False
             else:
                 self.top = True
             self.widget.setFloating(True)
-            self.moveDocker()
+            self._move_docker()
             self.hidden = False
 
-    def moveDocker(self):
+    def _move_docker(self):
         pos = QCursor.pos()
         if self.mousepos:
-            dockerpos = QPoint(int(pos.x()-self.mousepos.x()),int(pos.y()-self.mousepos.y()))
+            dockerpos = QPoint(int(pos.x()-self.mousepos.x()),
+                               int(pos.y()-self.mousepos.y()))
         else:
-            dockerpos = QPoint(int(pos.x()-self.widget.width()/2),int(pos.y()-self.widget.height()/2))
+            dockerpos = QPoint(int(pos.x()-self.widget.width()/2),
+                               int(pos.y()-self.widget.height()/2))
         if self.CLAMPPOSITION == "True":
-            self.widget.move(self.checkPosition(dockerpos))
+            self.widget.move(self._get_safe_position(dockerpos))
         else:
             self.widget.move(dockerpos)
-    
-    def transformPosition(self):
+
+    def translocation(self):
         if self.leave:
             if self.TRACEMOUSE == "True":
-                self.trackeCursorPosition()
-            self.sendLeaveEvent()
+                self._record_cursor_pos()
+            self._send_leave_event()
             self.widget.move(self.pin_position)
             self.widget.setWindowTitle(self.widget.windowTitle()[0:-1])
             self.leave = False
-            self.sendMoveEvent()
+            self._send_move_event()
         else:
             self.widget.unsetCursor()
             self.leave = True
             self.pin_position = self.widget.pos()
-            self.moveDocker()
+            self._move_docker()
             self.widget.setWindowTitle(self.widget.windowTitle()+"*")
 
-    def dockerReturn(self):
-        self.sendLeaveEvent()
+    def docker_return(self):
+        self._send_leave_event()
         if self.TRACEMOUSE == "True":
-            self.trackeCursorPosition()
+            self._record_cursor_pos()
         if self.hidden:
             self.widget.hide()
         else:
             self.widget.setFloating(False)
             if self.top:
                 self.widget.raise_()
-        self.sendMoveEvent() #refresh position of cursor outline
+        self._send_move_event()  # refresh position of cursor outline
 
-    def setAutoConceal(self):
+    def update_auto_hide(self):
         if self.monitor:
             if self.AUTOCONCEAL == "True":
                 self.monitor.auto_conceal = True
             elif self.AUTOCONCEAL == "False":
                 self.monitor.auto_conceal = False
 
-    def sendMoveEvent(self):
+    def _send_move_event(self):
         pos_0 = QCursor.pos()
         wobj = QApplication.widgetAt(pos_0)
         if wobj != None and wobj.__class__ == QOpenGLWidget:
@@ -114,29 +121,29 @@ class DockerVisibilityToggler():
 
             moveevent = QMouseEvent(event, pos, button, button, key)
             QCoreApplication.postEvent(wobj, moveevent)
-    
-    def sendLeaveEvent(self):
-        if self.cursorAtDocker():
+
+    def _send_leave_event(self):
+        if self.is_cursor_in_docker():
             QCoreApplication.postEvent(self.widget, QEvent(QEvent.Leave))
 
-    def trackeCursorPosition(self):
-        if self.cursorAtDocker():
+    def _record_cursor_pos(self):
+        if self.is_cursor_in_docker():
             self.mousepos = self.widget.mapFromGlobal(QCursor.pos())
         elif self.AUTOCONCEAL == "True":
             return
         else:
             self.mousepos = None
 
-    def cursorAtDocker(self):
+    def is_cursor_in_docker(self):
         pos = self.widget.mapFromGlobal(QCursor.pos())
         geometry = self.widget.geometry()
-        geometry.moveTo(0,0)
+        geometry.moveTo(0, 0)
         # qDebug(f"cursor pos:{pos} rect{geometry.size()} {geometry.topLeft()}")
         if geometry.contains(pos):
             return True
         return False
 
-    def checkPosition(self,dockerpos):
+    def _get_safe_position(self, dockerpos) -> QPoint:
         window = Krita.instance().activeWindow().qwindow()
         rpos = window.mapFromGlobal(dockerpos)
         if rpos.x() < 0:
@@ -155,7 +162,7 @@ class DockerVisibilityToggler():
             self.widget.setWindowTitle(self.widget.windowTitle()+"(pin)")
             self.pin_position = self.widget.pos()
 
-    def cancelPin(self):
+    def cancel_pin(self):
         self.pinned = False
         if self.leave == True:
             self.widget.setWindowTitle(self.widget.windowTitle()[:-6])
@@ -163,6 +170,6 @@ class DockerVisibilityToggler():
         else:
             self.widget.setWindowTitle(self.widget.windowTitle()[:-5])
 
-    def resetPin(self):
+    def reset_pin(self):
         if self.pinned:
-            self.cancelPin()
+            self.cancel_pin()
