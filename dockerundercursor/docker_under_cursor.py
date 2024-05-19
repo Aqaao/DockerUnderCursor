@@ -97,7 +97,7 @@ class DockerUnderCursor(Extension):
                                 i.setChecked(False)
                 else:
                     DockerVisibilityToggler.INSTANCES.remove(d)
-                    d.action.triggered.disconnect(d.toggleDockerStatus)
+                    d.action.triggered.disconnect(d.trigger)
                     Krita.instance().writeSetting("DockerUnderCursor", d.name, "0")
 
         Krita.instance().action('view_show_canvas_only').triggered.connect(
