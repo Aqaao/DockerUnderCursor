@@ -1,6 +1,6 @@
 from krita import *
 
-from .ActionKeyFilter import actionHoldFilter
+from .ActionHoldFilter import actionHoldFilter
 
 class DockerVisibilityToggler():
 
@@ -131,7 +131,7 @@ class DockerVisibilityToggler():
         pos = self.widget.mapFromGlobal(QCursor.pos())
         geometry = self.widget.geometry()
         geometry.moveTo(0,0)
-        qDebug(f"cursor pos:{pos} rect{geometry.size()} {geometry.topLeft()}")
+        # qDebug(f"cursor pos:{pos} rect{geometry.size()} {geometry.topLeft()}")
         if geometry.contains(pos):
             return True
         return False

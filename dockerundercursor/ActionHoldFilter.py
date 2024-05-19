@@ -30,10 +30,15 @@ class ActionHoldFilter(QMdiArea):
     
     def matchShortcuts(self,event:QKeyEvent) -> bool:
         if self._action:
-            if event.key() in (Qt.Key_Shift,Qt.Key_Control,Qt.Key_Alt):
-                released_key = QKeySequence(event.modifiers()).toString()
-            else:
-                released_key = QKeySequence(event.modifiers() | event.key()).toString()
+            match event.key():
+                case Qt.Key_Shift:
+                    released_key = QKeySequence(Qt.ShiftModifier).toString()
+                case Qt.Key_Control:
+                    released_key = QKeySequence(Qt.ControlModifier).toString()
+                case Qt.Key_Alt:
+                    released_key = QKeySequence(Qt.AltModifier).toString()
+                case _:
+                    released_key = QKeySequence(event.modifiers() | event.key()).toString()
             for s in self._action.shortcuts():
                 shortcut_key = s.toString()
                 if released_key in shortcut_key or shortcut_key in released_key:

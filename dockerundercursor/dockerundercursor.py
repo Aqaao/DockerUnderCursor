@@ -3,7 +3,7 @@ import xml.etree.cElementTree as ET
 
 from krita import *
 
-from dockerundercursor.ActionKeyFilter import ActionHoldFilter
+from dockerundercursor.ActionHoldFilter import ActionHoldFilter
 from dockerundercursor.DockerVisibilityToggler import DockerVisibilityToggler
 from dockerundercursor.SettingPanel import SettingPanel
 from dockerundercursor.DockerAutoHideFilter import DockerAutoHideFilter
