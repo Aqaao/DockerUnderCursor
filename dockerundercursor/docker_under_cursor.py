@@ -23,7 +23,8 @@ class DockerUnderCursor(Extension):
 
         # create display setting panel action
         action_1 = window.createAction(
-            "settingpanel", "DUC setting panel", "tools/scripts")
+            "settingpanel", "DUC setting panel", "tools/scripts"
+        )
         action_1.triggered.connect(self._open_setting_panel)
 
         # create fix docker action
@@ -32,7 +33,8 @@ class DockerUnderCursor(Extension):
 
         # create toggle view mode action
         action_3 = window.createAction(
-            "togglecanvasmode", "DUC only canvas mode", "tools/scripts")
+            "togglecanvasmode", "DUC only canvas mode", "tools/scripts"
+        )
         action_3.triggered.connect(self._toggle_canvas_mode)
 
         Krita.instance().notifier().windowCreated.connect(self._final_setup)
@@ -48,8 +50,7 @@ class DockerUnderCursor(Extension):
 
         for v in root.findall(".//Action/text"):
             toggler = DockerVisibilityToggler(v.text)
-            action: QAction = window.createAction(
-                "duc_{0}".format(v.text), "", "")
+            action: QAction = window.createAction("duc_{0}".format(v.text), "", "")
             action.triggered.connect(toggler.trigger)
             toggler.action = action
 
@@ -69,7 +70,7 @@ class DockerUnderCursor(Extension):
                     DockerVisibilityToggler.PINDOCKERS[d] = d.pin_position()
                 else:
                     DockerVisibilityToggler.PINDOCKERS[d] = d.widget.pos()
-        Krita.instance().action('view_show_canvas_only').trigger()
+        Krita.instance().action("view_show_canvas_only").trigger()
 
     def _recovery_pin_status(self):
         for d, pos in DockerVisibilityToggler.PINDOCKERS.items():
@@ -92,16 +93,21 @@ class DockerUnderCursor(Extension):
                     d.widget.visibilityChanged.connect(d.reset_pin)
                     if d.widget.isFloating():
                         # reset docker lock status
+                        lock_icon = Krita.instance().icon("docker_lock_b")
                         for i in d.widget.titleBarWidget().children():
-                            if i.__class__ == QAbstractButton and i.toolTip() == "Lock Docker":
+                            if (
+                                i.__class__ == QAbstractButton
+                                and i.icon().cacheKey() == lock_icon.cacheKey()
+                            ):
                                 i.setChecked(False)
                 else:
                     DockerVisibilityToggler.INSTANCES.remove(d)
                     d.action.triggered.disconnect(d.trigger)
                     Krita.instance().writeSetting("DockerUnderCursor", d.name, "0")
 
-        Krita.instance().action('view_show_canvas_only').triggered.connect(
-            self._recovery_pin_status)
+        Krita.instance().action("view_show_canvas_only").triggered.connect(
+            self._recovery_pin_status
+        )
         Krita.instance().notifier().windowCreated.disconnect(self._final_setup)
 
 
