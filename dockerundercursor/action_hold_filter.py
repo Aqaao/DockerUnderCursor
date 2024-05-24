@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING
 
 from krita import *
 
+# from qt_event import event_lookup
+
 if TYPE_CHECKING:
     from .docker_visibility_toggler import DockerVisibilityToggler
 
@@ -40,7 +42,8 @@ class ActionHoldFilter(QMdiArea):
                     released_key = QKeySequence(Qt.AltModifier).toString()
                 case _:
                     released_key = QKeySequence(
-                        event.modifiers() | event.key()).toString()
+                        event.modifiers() | event.key()
+                    ).toString()
             for s in self._action.shortcuts():
                 shortcut_key = s.toString()
                 if released_key in shortcut_key or shortcut_key in released_key:
@@ -48,11 +51,19 @@ class ActionHoldFilter(QMdiArea):
         return False
 
     def eventFilter(self, obj: QWidget, event: QEvent) -> bool:
-        if event.type() == QEvent.KeyRelease:
-            if (not event.isAutoRepeat() and not self._key_released and self._match_shortcuts(event)):
-                self._key_released = True
-                if time() - self._last_press_time > 0.3:
-                    self._long_key_release()
+        if not isinstance(
+            obj, QWindow
+        ):  # dock floating docker will close QWindow, filter QWindow event maybe cause app crash.
+            if event.type() == QEvent.KeyRelease:
+                if (
+                    not event.isAutoRepeat()
+                    and not self._key_released
+                    and self._match_shortcuts(event)
+                ):
+                    self._key_released = True
+                    if time() - self._last_press_time > 0.3:
+                        self._long_key_release()
+                        qDebug(f"{type(obj)}")
         return False
 
 

@@ -3,16 +3,19 @@ from krita import *
 from .action_hold_filter import actionHoldFilter
 
 
-class DockerVisibilityToggler():
+class DockerVisibilityToggler:
 
     TRACEMOUSE = Krita.instance().readSetting(
-        "DockerUnderCursor", "TraceMousePosition", "False")
+        "DockerUnderCursor", "TraceMousePosition", "False"
+    )
     CLAMPPOSITION = Krita.instance().readSetting(
-        "DockerUnderCursor", "ClampPosition", "False")
+        "DockerUnderCursor", "ClampPosition", "False"
+    )
     AUTOCONCEAL = Krita.instance().readSetting(
-        "DockerUnderCursor", "AutoConceal", "False")
+        "DockerUnderCursor", "AutoConceal", "False"
+    )
 
-    INSTANCES:list["DockerVisibilityToggler"] = []
+    INSTANCES: list["DockerVisibilityToggler"] = []
     PINDOCKERS = {}
 
     def __init__(self, name):
@@ -35,8 +38,9 @@ class DockerVisibilityToggler():
     # The method is core.
     def toggleDockerStatus(self):
         if not self.widget:  # idk why need this check
-            self.widget = Krita.instance().activeWindow(
-            ).qwindow().findChild(QWidget, self.name)
+            self.widget = (
+                Krita.instance().activeWindow().qwindow().findChild(QWidget, self.name)
+            )
             if not self.widget:
                 return
         if self.widget.isHidden():
@@ -46,6 +50,7 @@ class DockerVisibilityToggler():
                 self.widget.setFloating(True)
             self._move_docker()
             self.widget.show()
+            self.widget.activateWindow()
         elif self.widget.isFloating():
             if self.pinned:
                 self.translocation()
@@ -58,17 +63,21 @@ class DockerVisibilityToggler():
             else:
                 self.top = True
             self.widget.setFloating(True)
+            self.widget.activateWindow()
             self._move_docker()
             self.hidden = False
 
     def _move_docker(self):
         pos = QCursor.pos()
         if self.mousepos:
-            dockerpos = QPoint(int(pos.x()-self.mousepos.x()),
-                               int(pos.y()-self.mousepos.y()))
+            dockerpos = QPoint(
+                int(pos.x() - self.mousepos.x()), int(pos.y() - self.mousepos.y())
+            )
         else:
-            dockerpos = QPoint(int(pos.x()-self.widget.width()/2),
-                               int(pos.y()-self.widget.height()/2))
+            dockerpos = QPoint(
+                int(pos.x() - self.widget.width() / 2),
+                int(pos.y() - self.widget.height() / 2),
+            )
         if self.CLAMPPOSITION == "True":
             self.widget.move(self._get_safe_position(dockerpos))
         else:
@@ -78,20 +87,19 @@ class DockerVisibilityToggler():
         if self.leave:
             if self.TRACEMOUSE == "True":
                 self._record_cursor_pos()
-            self._send_leave_event()
             self.widget.move(self.pin_position)
             self.widget.setWindowTitle(self.widget.windowTitle()[0:-1])
             self.leave = False
+            self._send_leave_event()
             self._send_move_event()
         else:
             self.widget.unsetCursor()
             self.leave = True
             self.pin_position = self.widget.pos()
             self._move_docker()
-            self.widget.setWindowTitle(self.widget.windowTitle()+"*")
+            self.widget.setWindowTitle(self.widget.windowTitle() + "*")
 
     def docker_return(self):
-        self._send_leave_event()
         if self.TRACEMOUSE == "True":
             self._record_cursor_pos()
         if self.hidden:
@@ -100,6 +108,7 @@ class DockerVisibilityToggler():
             self.widget.setFloating(False)
             if self.top:
                 self.widget.raise_()
+        self._send_leave_event()
         self._send_move_event()  # refresh position of cursor outline
 
     def update_auto_hide(self):
@@ -159,7 +168,7 @@ class DockerVisibilityToggler():
     def pin(self):
         if self.widget.isFloating() and not self.widget.isHidden():
             self.pinned = True
-            self.widget.setWindowTitle(self.widget.windowTitle()+"(pin)")
+            self.widget.setWindowTitle(self.widget.windowTitle() + "(pin)")
             self.pin_position = self.widget.pos()
 
     def cancel_pin(self):
