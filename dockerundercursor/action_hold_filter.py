@@ -61,9 +61,9 @@ class ActionHoldFilter(QMdiArea):
                     and self._match_shortcuts(event)
                 ):
                     self._key_released = True
+                    self._action = None
                     if time() - self._last_press_time > 0.3:
                         self._long_key_release()
-                        qDebug(f"{type(obj)}")
         return False
 
 
