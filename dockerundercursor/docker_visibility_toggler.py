@@ -144,10 +144,11 @@ class DockerVisibilityToggler:
             self.mousepos = None
 
     def is_cursor_in_docker(self):
+        if not self.widget.isVisible():
+            return False
         pos = self.widget.mapFromGlobal(QCursor.pos())
         geometry = self.widget.geometry()
         geometry.moveTo(0, 0)
-        # qDebug(f"cursor pos:{pos} rect{geometry.size()} {geometry.topLeft()}")
         if geometry.contains(pos):
             return True
         return False
@@ -170,6 +171,7 @@ class DockerVisibilityToggler:
             self.pinned = True
             self.widget.setWindowTitle(self.widget.windowTitle() + "(pin)")
             self.pin_position = self.widget.pos()
+            qDebug(f"pin {self.name}")
 
     def cancel_pin(self):
         self.pinned = False
@@ -178,6 +180,7 @@ class DockerVisibilityToggler:
             self.leave = False
         else:
             self.widget.setWindowTitle(self.widget.windowTitle()[:-5])
+        qDebug(f"unpin {self.name}")
 
     def reset_pin(self):
         if self.pinned:

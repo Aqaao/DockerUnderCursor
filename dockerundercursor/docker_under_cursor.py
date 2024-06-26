@@ -56,8 +56,8 @@ class DockerUnderCursor(Extension):
 
     def _pin_docker(self):
         for d in DockerVisibilityToggler.INSTANCES:
-            if d.selfIsParent()[0]:
-                if d.pinned == False:
+            if d.is_cursor_in_docker():
+                if not d.pinned:
                     d.pin()
                 else:
                     d.cancel_pin()
