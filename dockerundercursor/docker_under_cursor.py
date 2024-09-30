@@ -85,7 +85,7 @@ class DockerUnderCursor(Extension):
             if not d.window:
                 qwin = Krita.instance().activeWindow().qwindow()
                 d.window = qwin.objectName()
-                d.widget = qwin.findChild(QWidget, d.name)
+                d.widget = qwin.findChild(QDockWidget, d.name)
                 if d.widget:
                     d.monitor = DockerAutoHideFilter(d)
                     d.widget.installEventFilter(d.monitor)

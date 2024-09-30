@@ -39,7 +39,10 @@ class DockerVisibilityToggler:
     def toggleDockerStatus(self):
         if not self.widget:  # idk why need this check
             self.widget = (
-                Krita.instance().activeWindow().qwindow().findChild(QWidget, self.name)
+                Krita.instance()
+                .activeWindow()
+                .qwindow()
+                .findChild(QDockWidget, self.name)
             )
             if not self.widget:
                 return
@@ -147,7 +150,7 @@ class DockerVisibilityToggler:
         if not self.widget.isVisible():
             return False
         pos = self.widget.mapFromGlobal(QCursor.pos())
-        geometry = self.widget.geometry()
+        geometry = QWidget.geometry(self.widget)
         geometry.moveTo(0, 0)
         if geometry.contains(pos):
             return True
@@ -171,7 +174,6 @@ class DockerVisibilityToggler:
             self.pinned = True
             self.widget.setWindowTitle(self.widget.windowTitle() + "(pin)")
             self.pin_position = self.widget.pos()
-            qDebug(f"pin {self.name}")
 
     def cancel_pin(self):
         self.pinned = False
@@ -180,7 +182,6 @@ class DockerVisibilityToggler:
             self.leave = False
         else:
             self.widget.setWindowTitle(self.widget.windowTitle()[:-5])
-        qDebug(f"unpin {self.name}")
 
     def reset_pin(self):
         if self.pinned:
