@@ -37,6 +37,8 @@ class SettingPanel(QDialog):
         self.restart_warning.setWordWrap(True)
 
         self.docker_layout = QVBoxLayout()
+        self.docker_layout.setAlignment(Qt.AlignTop)
+        self.docker_checkboxes = []
         self.dockers = Krita.instance().dockers()
         self._add_docker_checkboxes()
 
@@ -45,7 +47,8 @@ class SettingPanel(QDialog):
         self.docker_group.setLayout(self.docker_layout)
 
         self.scroll_area = QScrollArea()
-        self.scroll_area.setAlignment(Qt.AlignHCenter)
+        self.scroll_area.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setWidget(self.docker_group)
 
         self.trace_checkbox = QCheckBox("Remember mouse position relative to docker")
@@ -120,7 +123,26 @@ class SettingPanel(QDialog):
             checkbox = QCheckBox(docker.windowTitle())
             checkbox.setChecked(self._read_docker_status(docker.objectName()))
             checkbox.stateChanged.connect(self._mark_dirty)
-            self.docker_layout.addWidget(checkbox)
+            self.docker_checkboxes.append(checkbox)
+
+            docker_id = QLabel(docker.objectName())
+            docker_id.setTextFormat(Qt.PlainText)
+            docker_id.setAlignment(Qt.AlignLeft)
+            docker_id.setStyleSheet("color: gray;")
+            font = docker_id.font()
+            font.setPointSizeF(max(1.0, font.pointSizeF() * 0.85))
+            docker_id.setFont(font)
+            # Align the ID with the checkbox text, after the check indicator.
+            docker_id.setIndent(
+                checkbox.style().pixelMetric(QStyle.PM_IndicatorWidth)
+                + checkbox.style().pixelMetric(QStyle.PM_CheckBoxLabelSpacing)
+            )
+
+            option_layout = QVBoxLayout()
+            option_layout.setSpacing(2)
+            option_layout.addWidget(checkbox, alignment=Qt.AlignLeft)
+            option_layout.addWidget(docker_id, alignment=Qt.AlignLeft)
+            self.docker_layout.addLayout(option_layout)
 
     def _save_settings(self):
         tree = self.read_action_tree()
@@ -139,8 +161,8 @@ class SettingPanel(QDialog):
             short_empty_elements=False,
         )
 
-        for index, docker in enumerate(self.dockers):
-            enabled = self.docker_layout.itemAt(index).widget().isChecked()
+        for docker, checkbox in zip(self.dockers, self.docker_checkboxes):
+            enabled = checkbox.isChecked()
             Krita.instance().writeSetting(
                 "DockerUnderCursor", docker.objectName(), "1" if enabled else "0"
             )
@@ -163,8 +185,8 @@ class SettingPanel(QDialog):
         self._update_restart_warning()
 
     def _save_docker_actions(self, actions):
-        for index, docker in enumerate(self.dockers):
-            enabled = self.docker_layout.itemAt(index).widget().isChecked()
+        for docker, checkbox in zip(self.dockers, self.docker_checkboxes):
+            enabled = checkbox.isChecked()
             if enabled:
                 self._write_action(actions, docker.objectName())
 
