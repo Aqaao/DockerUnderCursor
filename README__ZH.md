@@ -47,7 +47,7 @@ Docker Under Cursor 是一款 [Krita](https://krita.org/) 插件，可通过快�
 1. 打开 **工具 → 脚本 → DUC Settings**。
 2. 勾选需要控制的面板，点击 **Save**。
 3. **重启 Krita**，加载所选面板的快捷键动作。
-4. 打开 **配置 Krita → 键盘快捷键 → Scripts → Docker Under Cursor**，为各面板分配快捷键。
+4. 打开 **配置 Krita → 键盘快捷键 → Scripts → Docker Under Cursor/ Dockers**，为各面板分配快捷键。
 5. 使用快捷键调出或还原面板。
 
 快捷键条目使用 Krita 内部的面板 ID，可能与界面标题不同，可参考下方对照表。固定面板和切换画布模式的动作位于 **Docker Under Cursor: Other Actions** 分类中。
@@ -57,47 +57,6 @@ Docker Under Cursor 是一款 [Krita](https://krita.org/) 插件，可通过快�
 ## 已知问题
 
 - 某些带有滚动条的面板（如色板、笔刷预设）在反复浮动和停靠后，高度可能变小。将面板浮动后，手动拖回主窗口的停靠区域，即可恢复正常尺寸。
-
-## 面板名称对照表
-
-名称与译名可能因 Krita 版本或所安装的插件而有所不同。
-
-| 内部名称 | 面板标题 |
-| --- | --- |
-| AnimationCurvesDocker | 动画曲线 |
-| ArrangeDocker | 矢量图形排列控制 |
-| ArtisticColorSelector | 美术拾色器 |
-| ChannelDocker | 通道 |
-| ColorSelectorNg | 多功能拾色器 |
-| CompositionDocker | 图层显示方案 |
-| DigitalMixer | 颜色比例混合器 |
-| GamutMask | 色域蒙版 |
-| GridDocker | 网格与参考线 |
-| HistogramDocker | 直方图 |
-| History | 撤销历史 |
-| KisLayerBox | 图层 |
-| LogDocker | 日志查看器 |
-| LutDocker | LUT 色彩管理 |
-| OnionSkinsDocker | 绘图纸外观 |
-| OverviewDocker | 导航器 / 总览图 |
-| PaletteDocker | 色板 |
-| PatternDocker | 图案 |
-| PresetDocker | 笔刷预设 |
-| PresetHistory | 笔刷预设历史 |
-| RecorderDocker | 录像工具 |
-| SmallColorSelector | 小型拾色器 |
-| Snapshot | 图像版本快照 |
-| SpecificColorSelector | 量化拾色器 |
-| StoryboardDocker | 分镜头脚本 |
-| SvgSymbolCollectionDocker | SVG 矢量图形库 |
-| TasksetDocker | 操作流程 |
-| TimelineDocker | 动画时间轴 |
-| ToolBox | 工具箱 |
-| TouchDocker | 触摸屏辅助按钮 |
-| comics_project_manager_docker | 漫画项目管理 |
-| lastdocumentsdocker | 最近图像列表 |
-| quick_settings_docker | 笔刷常用数值一键切换面板 |
-| sharedtooldocker | 工具选项 |
 
 ## 开发与维护
 

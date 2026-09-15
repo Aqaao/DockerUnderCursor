@@ -23,11 +23,12 @@ class DockerUnderCursor(Extension):
         )
         settings_action.triggered.connect(self._open_setting_panel)
 
-        pin_action = window.createAction("pindocker", "", "")
+        pin_action = window.createAction("pindocker", "DUC Pin/Unpin Docker", "")
         pin_action.triggered.connect(self._pin_docker)
 
+        # No menu location: the action stays available for shortcut assignment.
         canvas_mode_action = window.createAction(
-            "togglecanvasmode", "DUC Toggle Canvas-Only Mode", "tools/scripts"
+            "togglecanvasmode", "DUC Toggle Canvas-Only Mode", ""
         )
         canvas_mode_action.triggered.connect(self._toggle_canvas_mode)
 

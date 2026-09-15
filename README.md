@@ -47,7 +47,7 @@ If the plugin is not enabled, open **Configure Krita → Python Plugin Manager**
 1. Open **Tools → Scripts → DUC Settings**.
 2. Select the dockers you want to control and click **Save**.
 3. **Restart Krita** to load the selected docker actions.
-4. Open **Configure Krita → Keyboard Shortcuts → Scripts → Docker Under Cursor** and assign a shortcut to each enabled docker.
+4. Open **Configure Krita → Keyboard Shortcuts → Scripts → Docker Under Cursor/ Dockers** and assign a shortcut to each enabled docker.
 5. Use those shortcuts to bring dockers to the cursor and restore their previous state.
 
 Shortcut entries use Krita's internal docker IDs, which may differ from the titles shown in the interface. Pinning and canvas-only mode actions are listed under **Docker Under Cursor: Other Actions**.

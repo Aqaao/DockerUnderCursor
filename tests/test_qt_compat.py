@@ -365,6 +365,29 @@ class QtCompatibilityTests(unittest.TestCase):
                 factory.return_value.trigger
             )
 
+    def test_canvas_mode_action_has_no_menu_entry(self):
+        extension_module = importlib.import_module(
+            "dockerundercursor.docker_under_cursor"
+        )
+        window = Mock()
+        created = {}
+
+        def create_action(action_id, text, menu_location):
+            created[action_id] = (text, menu_location)
+            return Mock()
+
+        window.createAction.side_effect = create_action
+        with (
+            patch.object(extension_module, "DockerVisibilityToggler"),
+            patch.object(API, "notifier", Mock(), create=True),
+        ):
+            extension_module.DockerUnderCursor(API).createActions(window)
+        self.assertEqual(
+            created["togglecanvasmode"], ("DUC Toggle Canvas-Only Mode", "")
+        )
+        self.assertEqual(created["pindocker"], ("DUC Pin/Unpin Docker", ""))
+        self.assertEqual(created["settingpanel"][1], "tools/scripts")
+
     def test_key_sequences_with_modifiers(self):
         sequence_format = getattr(
             QtGui.QKeySequence, "SequenceFormat", QtGui.QKeySequence
