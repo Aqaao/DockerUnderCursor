@@ -1,2 +1,3 @@
 *.ffs_batch
+.ropeproject/
 __pycache__
