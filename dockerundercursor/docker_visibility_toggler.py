@@ -26,7 +26,7 @@ class DockerVisibilityToggler:
         self.name = name
         self.window_name = None
         self.widget: QDockWidget | None = None
-        # Restore both visibility and tab order when returning to the dock area.
+        # Remember whether the docker was hidden or was the active dock tab.
         self.was_hidden = True
         self.was_top = False
         self.cursor_offset = None
@@ -105,7 +105,7 @@ class DockerVisibilityToggler:
             self.widget.setWindowTitle(self.widget.windowTitle() + "*")
 
     def restore_docker(self):
-        """Restore the visibility and tab order saved before floating."""
+        """Restore the docker's previous visibility and active-tab state."""
         if self.trace_mouse == "True":
             self._record_cursor_position()
         if self.was_hidden:

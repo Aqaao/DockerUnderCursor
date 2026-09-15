@@ -18,7 +18,7 @@ class DockerUnderCursor(Extension):
         self._create_docker_toggle_actions(window)
 
         settings_action = window.createAction(
-            "settingpanel", "DUC Settings panel", "tools/scripts"
+            "settingpanel", "DUC Settings", "tools/scripts"
         )
         settings_action.triggered.connect(self._open_setting_panel)
 
@@ -26,7 +26,7 @@ class DockerUnderCursor(Extension):
         pin_action.triggered.connect(self._pin_docker)
 
         canvas_mode_action = window.createAction(
-            "togglecanvasmode", "DUC only canvas mode", "tools/scripts"
+            "togglecanvasmode", "DUC Toggle Canvas-Only Mode", "tools/scripts"
         )
         canvas_mode_action.triggered.connect(self._toggle_canvas_mode)
 

@@ -10,11 +10,11 @@ Docker Under Cursor 是一款 [Krita](https://krita.org/) 插件，可通过快�
 
 - 为每个已启用的面板分配快捷键。按下快捷键后，面板会显示在光标位置；再次按下，则根据原先状态隐藏面板或将其停靠回主窗口。
 - 通过三个可选设置调整浮动行为：
-  - **Remember mouse position relative to docker**：记住上次面板还原或隐藏时光标在面板内的相对位置。关闭后，面板中心将对齐光标。
-  - **Keep docker inside the main window**：将浮动面板的位置限制在主窗口内。
-  - **Auto conceal docker after mouse leaves**：光标离开浮动面板后，自动还原或隐藏面板。
+  - **Remember cursor position within the docker**：记住上次面板还原或隐藏时光标在面板内的相对位置。关闭后，面板中心将对齐光标。
+  - **Keep floating dockers inside the main window**：将浮动面板的位置限制在主窗口内。
+  - **Restore dockers when the cursor leaves**：光标离开浮动面板后，自动隐藏面板、重新停靠，或将其移回固定位置。
 - 将光标移到浮动面板上，按 **Ctrl + 反引号（\`）** 即可固定面板。此后，面板快捷键会让它在固定位置和光标位置之间切换。再次按固定快捷键可取消固定。
-- 若要在切换画布模式时保留固定面板的位置与状态，可将 **Tab** 绑定到 **DUC only canvas mode**；请先移除冲突的 Tab 绑定。
+- 若要在切换画布模式时保留固定面板的位置与状态，可将 **Tab** 绑定到 **DUC Toggle Canvas-Only Mode**；请先移除冲突的 Tab 绑定。
 
 ## 预览
 
@@ -44,13 +44,13 @@ Docker Under Cursor 是一款 [Krita](https://krita.org/) 插件，可通过快�
 
 ## 使用
 
-1. 打开 **工具 → 脚本 → DUC Settings panel**。
+1. 打开 **工具 → 脚本 → DUC Settings**。
 2. 勾选需要控制的面板，点击 **Save**。
 3. **重启 Krita**，加载所选面板的快捷键动作。
 4. 打开 **配置 Krita → 键盘快捷键 → Scripts → Docker Under Cursor**，为各面板分配快捷键。
 5. 使用快捷键调出或还原面板。
 
-快捷键条目使用 Krita 内部的面板名称，可能与界面标题不同，可参考下方对照表。固定面板和切换画布模式的动作位于 **Docker Under Cursor Other** 分类中。
+快捷键条目使用 Krita 内部的面板 ID，可能与界面标题不同，可参考下方对照表。固定面板和切换画布模式的动作位于 **Docker Under Cursor: Other Actions** 分类中。
 
 三个行为选项在点击 **Save** 后立即生效；修改启用的面板列表后，需要重启 Krita。
 

@@ -10,11 +10,11 @@ Docker Under Cursor is a [Krita](https://krita.org/) plugin that brings dockers 
 
 - Assign a shortcut to each enabled docker. Press it to show the docker at the cursor, then press it again to hide it or return it to its docked state.
 - Customize the floating behavior with three options:
-  - **Remember mouse position relative to docker**: reuse the cursor's relative position from the last time the docker was returned or hidden. When disabled, the docker is centered on the cursor.
-  - **Keep docker inside the main window**: constrain the floating docker's position to the main window.
-  - **Auto conceal docker after mouse leaves**: automatically return or hide the floating docker when the cursor leaves it.
+  - **Remember cursor position within the docker**: reuse the cursor's position within the docker, recorded when the docker was last restored or hidden. When disabled, the docker is centered on the cursor.
+  - **Keep floating dockers inside the main window**: constrain the floating docker's position to the main window.
+  - **Restore dockers when the cursor leaves**: automatically hide the docker, dock it again, or return it to its pinned position when the cursor leaves it.
 - Pin a floating docker by hovering over it and pressing **Ctrl + backtick (\`)**. Its shortcut then moves it between the pinned position and the cursor. Press the pin shortcut again to unpin it.
-- Preserve pinned dockers when switching canvas-only mode by assigning **Tab** to **DUC only canvas mode**. Remove any conflicting Tab assignment first.
+- Preserve pinned dockers when toggling canvas-only mode by assigning **Tab** to **DUC Toggle Canvas-Only Mode**. Remove any conflicting Tab assignment first.
 
 ## Preview
 
@@ -44,15 +44,15 @@ If the plugin is not enabled, open **Configure Krita → Python Plugin Manager**
 
 ## Usage
 
-1. Open **Tools → Scripts → DUC Settings panel**.
+1. Open **Tools → Scripts → DUC Settings**.
 2. Select the dockers you want to control and click **Save**.
 3. **Restart Krita** to load the selected docker actions.
 4. Open **Configure Krita → Keyboard Shortcuts → Scripts → Docker Under Cursor** and assign a shortcut to each enabled docker.
-5. Use those shortcuts to bring dockers to the cursor and return them.
+5. Use those shortcuts to bring dockers to the cursor and restore their previous state.
 
-Shortcut entries use Krita's internal docker names, which may differ from the titles shown in the interface. Pinning and canvas-only actions are listed under **Docker Under Cursor Other**.
+Shortcut entries use Krita's internal docker IDs, which may differ from the titles shown in the interface. Pinning and canvas-only mode actions are listed under **Docker Under Cursor: Other Actions**.
 
-Changes to the three behavior options apply when you click **Save**. Changes to the enabled dockers require a restart.
+Changes to the three behavior options take effect when you click **Save**. Changes to the selection of enabled dockers require a restart.
 
 ## Known issues
 
@@ -80,4 +80,4 @@ Use `uvx ruff format .` to format the Python source. Formatting and lint rules a
 
 Use `snake_case` for internal methods and variables, `PascalCase` for classes, and `UPPER_SNAKE_CASE` for constants. Preserve Krita and Qt callback names such as `createActions` and `eventFilter`, as well as existing action IDs and persisted settings keys.
 
-GUI behavior must be verified in Krita: enable dockers and restart, assign shortcuts, toggle docked and hidden dockers, exercise each behavior option, pin and unpin a docker, and switch canvas-only mode with a pinned docker both at and away from its pinned position.
+GUI behavior must be verified in Krita: enable dockers and restart, assign shortcuts, toggle docked and hidden dockers, exercise each behavior option, pin and unpin a docker, and toggle canvas-only mode with a pinned docker both at and away from its pinned position.

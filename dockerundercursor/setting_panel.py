@@ -9,7 +9,7 @@ from .docker_visibility_toggler import DockerVisibilityToggler
 
 
 class SettingPanel(QDialog):
-    """Save docker action definitions for Krita to load on its next start."""
+    """Save docker action definitions for Krita to load at the next startup."""
 
     ACTION_TEMPLATE = Path(__file__).resolve().with_name("dockerundercursor.action")
     WINDOW_TITLE = "Docker Under Cursor Settings"
@@ -31,7 +31,7 @@ class SettingPanel(QDialog):
         super().__init__()
 
         self.restart_warning = QLabel(
-            "Restart Krita to register all saved docker shortcuts."
+            "Restart Krita to make all selected docker actions available."
         )
         self.restart_warning.setStyleSheet("color: #e6b800;")
         self.restart_warning.setWordWrap(True)
@@ -51,21 +51,22 @@ class SettingPanel(QDialog):
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setWidget(self.docker_group)
 
-        self.trace_checkbox = QCheckBox("Remember mouse position relative to docker")
+        self.trace_checkbox = QCheckBox("Remember cursor position within the docker")
         self.trace_checkbox.setToolTip(
-            "When disabled, the docker is centered on the cursor."
+            "If disabled, the docker is centered on the cursor."
         )
         self.trace_checkbox.setChecked(self._read_preference("TraceMousePosition"))
 
-        self.clamp_checkbox = QCheckBox("Keep docker inside the main window")
+        self.clamp_checkbox = QCheckBox("Keep floating dockers inside the main window")
         self.clamp_checkbox.setToolTip(
-            "When disabled, the docker may extend beyond the main window."
+            "If disabled, the docker may extend beyond the main window."
         )
         self.clamp_checkbox.setChecked(self._read_preference("ClampPosition"))
 
-        self.auto_conceal_checkbox = QCheckBox("Auto conceal docker after mouse leaves")
+        self.auto_conceal_checkbox = QCheckBox("Restore dockers when the cursor leaves")
         self.auto_conceal_checkbox.setToolTip(
-            "When disabled, press the shortcut again to return or hide the docker."
+            "Automatically hide the docker, dock it again, or return it to its "
+            "pinned position when the cursor leaves."
         )
         self.auto_conceal_checkbox.setChecked(self._read_preference("AutoConceal"))
 
@@ -111,7 +112,7 @@ class SettingPanel(QDialog):
             for action in root.findall(".//Action")
         )
         self.restart_warning.setText(
-            "Restart Krita to register all saved docker shortcuts."
+            "Restart Krita to make all selected docker actions available."
         )
         self.restart_warning.setVisible(restart_required)
 
