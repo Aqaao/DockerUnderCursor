@@ -80,6 +80,9 @@ class DockerUnderCursor(Extension):
         DockerVisibilityToggler.pinned_positions.clear()
 
     def _final_setup(self):
+        # Regenerate the file when its docker selection differs from settings.
+        SettingPanel.sync_action_file()
+
         # Iterate over a copy: unavailable dockers are removed from the registry.
         for toggler in DockerVisibilityToggler.instances[:]:
             if not toggler.window_name:

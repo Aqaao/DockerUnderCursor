@@ -130,6 +130,38 @@ class QtCompatibilityTests(unittest.TestCase):
         panel._update_restart_warning()
         self.assertTrue(panel.restart_warning.isHidden())
 
+    def test_open_detects_enabled_docker_without_registered_action(self):
+        panel_type = settings_module.SettingPanel
+        # The saved action file only holds already-registered General actions,
+        # while Krita settings enable a docker that has no registered action.
+        path = panel_type.action_file()
+        path.parent.mkdir()
+        path.write_bytes(panel_type.ACTION_TEMPLATE.read_bytes())
+        API.settings["DockerUnderCursor", "PaletteDocker"] = "1"
+
+        panel = panel_type()
+        self.widgets.append(panel)
+        self.assertTrue(panel.docker_checkboxes[0].isChecked())
+        self.assertFalse(panel.restart_warning.isHidden())
+        self.assertIn("Restart Krita", panel.restart_warning.text())
+
+        API.registered_actions["duc_PaletteDocker"] = getattr(krita_stub, "QAction")()
+        panel._update_restart_warning()
+        self.assertTrue(panel.restart_warning.isHidden())
+
+    def test_close_button_closes_without_saving(self):
+        panel = settings_module.SettingPanel()
+        self.widgets.append(panel)
+        panel.show()
+        panel.docker_checkboxes[0].setChecked(True)
+        self.assertTrue(panel.windowTitle().endswith(" *"))
+
+        panel.close_button.click()
+
+        self.assertFalse(panel.isVisible())
+        self.assertFalse(panel.action_file().exists())
+        self.assertNotIn(("DockerUnderCursor", "PaletteDocker"), API.settings)
+
     def test_saving_docker_selection_preserves_general_actions(self):
         panel = settings_module.SettingPanel()
         self.widgets.append(panel)
@@ -156,6 +188,63 @@ class QtCompatibilityTests(unittest.TestCase):
             self.assertEqual(len(dynamic), 1 if enabled else 0)
             ids = [action.get("name") for action in root.findall(".//Action")]
             self.assertEqual(len(ids), len(set(ids)))
+
+    def test_sync_action_file_regenerates_only_when_differing(self):
+        panel_type = settings_module.SettingPanel
+        # No file and no enabled dockers are consistent, so none is created.
+        panel_type.sync_action_file()
+        self.assertFalse(panel_type.action_file().exists())
+
+        # A file that matches settings is left untouched, even in legacy layout.
+        API.settings["DockerUnderCursor", "PaletteDocker"] = "1"
+        path = panel_type.action_file()
+        path.parent.mkdir()
+        path.write_text(
+            '<ActionCollection version="2" name="Scripts">'
+            '<Actions category="Scripts"><text>Docker Under Cursor</text>'
+            '<Action name="duc_PaletteDocker"><text>Palette</text>'
+            "<shortcut>Alt+P</shortcut></Action></Actions></ActionCollection>",
+            encoding="utf-8",
+        )
+        original = path.read_bytes()
+        panel_type.sync_action_file()
+        self.assertEqual(path.read_bytes(), original)
+
+        # A file whose docker selection differs is regenerated from settings.
+        path.write_text(
+            '<ActionCollection version="2" name="Scripts">'
+            '<Actions category="Scripts"><text>Docker Under Cursor / Dockers</text>'
+            '<Action name="duc_OtherDocker"><text>Other</text>'
+            "<shortcut>Alt+O</shortcut></Action></Actions></ActionCollection>",
+            encoding="utf-8",
+        )
+        panel_type.sync_action_file()
+        root = ET.parse(path).getroot()
+        self.assertEqual(
+            [
+                action.get("name")
+                for action in root.findall(panel_type.DOCKER_ACTIONS_PATH + "/Action")
+            ],
+            ["duc_PaletteDocker"],
+        )
+        # General actions from the template are preserved.
+        self.assertEqual(
+            len(
+                root.findall(".//Actions[text='Docker Under Cursor / General']/Action")
+            ),
+            3,
+        )
+
+    def test_sync_action_file_creates_missing_file_for_enabled_dockers(self):
+        panel_type = settings_module.SettingPanel
+        API.settings["DockerUnderCursor", "PaletteDocker"] = "1"
+
+        panel_type.sync_action_file()
+
+        action = ET.parse(panel_type.action_file()).find(
+            panel_type.DOCKER_ACTIONS_PATH + "/Action"
+        )
+        self.assertEqual(action.get("name"), "duc_PaletteDocker")
 
     def test_legacy_actions_move_to_dockers_category(self):
         panel_type = settings_module.SettingPanel

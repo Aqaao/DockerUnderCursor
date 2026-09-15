@@ -26,6 +26,11 @@ class SettingPanel(QDialog):
         return Path(resource_directory) / "actions" / cls.ACTION_TEMPLATE.name
 
     @classmethod
+    def docker_action_id(cls, docker_name):
+        """Return the registered action ID for a docker's object name."""
+        return cls.DOCKER_ACTION_PREFIX + docker_name
+
+    @classmethod
     def read_action_tree(cls):
         """Combine the bundled categories with previously generated actions."""
         tree = cls.action_tree_for_krita(ET.parse(cls.ACTION_TEMPLATE))
@@ -72,6 +77,71 @@ class SettingPanel(QDialog):
         for category in source_root.findall("Actions"):
             append_category(category, [])
         return ET.ElementTree(root)
+
+    @classmethod
+    def enabled_docker_names(cls):
+        """Return the object names of dockers enabled in Krita settings."""
+        return [
+            docker.objectName()
+            for docker in Krita.instance().dockers()
+            if Krita.instance().readSetting(
+                "DockerUnderCursor", docker.objectName(), "0"
+            )
+            == "1"
+        ]
+
+    @classmethod
+    def _action_docker_names(cls):
+        """Return docker names listed in the generated action file.
+
+        Returns None when the file does not exist, which means the settings
+        selection has never been saved and nothing should be regenerated.
+        """
+        action_file = cls.action_file()
+        if not action_file.is_file():
+            return None
+        tree = ET.parse(action_file)
+        prefix = cls.DOCKER_ACTION_PREFIX
+        # Search all categories so legacy layouts can be recognized and synced.
+        return [
+            action.get("name", "")[len(prefix) :]
+            for action in tree.findall(".//Action")
+            if action.get("name", "").startswith(prefix)
+        ]
+
+    @classmethod
+    def sync_action_file(cls):
+        """Regenerate the action file when it differs from the enabled dockers.
+
+        The selection stored in settings is authoritative, so a file that is out
+        of sync is rewritten to match it.
+        """
+        action_names = cls._action_docker_names()
+        enabled_names = cls.enabled_docker_names()
+        if action_names is not None and set(action_names) == set(enabled_names):
+            return
+        if action_names is None and not enabled_names:
+            return
+
+        tree = cls.read_action_tree()
+        actions = tree.find(cls.DOCKER_ACTIONS_PATH)
+        for action in actions.findall("Action"):
+            actions.remove(action)
+        for docker_name in enabled_names:
+            cls._write_action(actions, docker_name)
+        cls._write_action_tree(tree)
+
+    @classmethod
+    def _write_action_tree(cls, tree):
+        ET.indent(tree, space="    ")
+        action_file = cls.action_file()
+        action_file.parent.mkdir(parents=True, exist_ok=True)
+        tree.write(
+            action_file,
+            encoding="UTF-8",
+            xml_declaration=True,
+            short_empty_elements=False,
+        )
 
     def __init__(self):
         super().__init__()
@@ -126,13 +196,20 @@ class SettingPanel(QDialog):
         self.save_button = QPushButton("Save")
         self.save_button.clicked.connect(self._save_settings)
 
+        self.close_button = QPushButton("Close")
+        self.close_button.clicked.connect(self.close)
+
+        self.button_layout = QHBoxLayout()
+        self.button_layout.addWidget(self.save_button)
+        self.button_layout.addWidget(self.close_button)
+
         self.main_layout = QVBoxLayout()
         self.main_layout.addWidget(self.restart_warning)
         self.main_layout.addWidget(self.scroll_area)
         self.main_layout.addWidget(self.trace_checkbox)
         self.main_layout.addWidget(self.clamp_checkbox)
         self.main_layout.addWidget(self.auto_conceal_checkbox)
-        self.main_layout.addWidget(self.save_button)
+        self.main_layout.addLayout(self.button_layout)
 
         self.setLayout(self.main_layout)
         self.resize(380, 800)
@@ -143,19 +220,18 @@ class SettingPanel(QDialog):
         self.setWindowTitle(self.WINDOW_TITLE + " *")
 
     def _update_restart_warning(self):
-        """Prompt for initial setup or missing registrations of saved actions."""
-        action_file = self.action_file()
-        if not action_file.is_file():
+        """Compare currently registered actions with the enabled dockers."""
+        enabled_names = self.enabled_docker_names()
+        if not enabled_names:
             self.restart_warning.setText(
                 "Select the dockers you want to use, then click Save."
             )
             self.restart_warning.setVisible(True)
             return
 
-        root = ET.parse(action_file).getroot()
         restart_required = any(
-            Krita.instance().action(action.attrib["name"]) is None
-            for action in root.findall(".//Action")
+            Krita.instance().action(self.docker_action_id(name)) is None
+            for name in enabled_names
         )
         self.restart_warning.setText(
             "Restart Krita to make all selected docker actions available."
@@ -198,15 +274,7 @@ class SettingPanel(QDialog):
         for action in actions.findall("Action"):
             actions.remove(action)
         self._save_docker_actions(actions)
-        ET.indent(tree, space="    ")
-        action_file = self.action_file()
-        action_file.parent.mkdir(parents=True, exist_ok=True)
-        tree.write(
-            action_file,
-            encoding="UTF-8",
-            xml_declaration=True,
-            short_empty_elements=False,
-        )
+        self._write_action_tree(tree)
 
         for docker, checkbox in zip(self.dockers, self.docker_checkboxes):
             enabled = checkbox.isChecked()
@@ -240,9 +308,10 @@ class SettingPanel(QDialog):
     def _read_docker_status(self, name):
         return Krita.instance().readSetting("DockerUnderCursor", name, "0") == "1"
 
-    def _write_action(self, actions, docker_name):
+    @classmethod
+    def _write_action(cls, actions, docker_name):
         action = ET.SubElement(
-            actions, "Action", {"name": "duc_{}".format(docker_name)}
+            actions, "Action", {"name": cls.docker_action_id(docker_name)}
         )
         ET.SubElement(action, "text").text = docker_name
         ET.SubElement(action, "shortcut").text = "none"
