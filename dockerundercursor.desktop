@@ -4,6 +4,5 @@ ServiceTypes=Krita/PythonPlugin
 X-KDE-Library=dockerundercursor
 X-Python-2-Compatible=false
 X-Krita-Manual=Manual.html
-Name=dockerundercursor
-Comment=Display docker on cursor position.
-
+Name=Docker Under Cursor
+Comment=Show floating dockers at the cursor position using keyboard shortcuts.

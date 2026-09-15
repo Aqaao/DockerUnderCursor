@@ -1,60 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Docker Under Cursor</title>
+    </head>
+    <body>
+        <h1>Docker Under Cursor / 在光标位置显示面板</h1>
+        <p>Version / 版本：1.1.1</p>
+        <p>Use keyboard shortcuts to show Krita dockers at the cursor position.</p>
+        <p lang="zh-CN">通过快捷键将 Krita 面板浮动显示在光标位置。</p>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head><title>Docker Under Cursor</title>
-</head>
-<body>
-<h2>Docker Under Cursor / 在光标下显示面板</h2>
-<h2>version 1.1.1</h2>
-This plugin can make any docker float and display in the mouse position with keyboard shotcuts.<br />
-<br />
-这个插件可以使用快捷键快速让面板显示到光标位置。<br />
-<h3>Usage / 用法</h3>
-If it's the first time you use the plugin, you won't find anything in the keyboard shortcuts configuration, you need to enable in settings.<br />
-Click in order in the top menu bar "Tools - Scripts - DUC Settings panel" open setting dialog.<br />
-Select the docker you need, and click "Save", then restart Krita.<br />
-Right now, open "configure Krita", in "keyboard shortcuts" find "Scripts - Docker Under Cursor", you can see the items you have enabled, set a shortcut key for it !<br />
-<br />
-第一次使用插件需要手动启用各个面板的可用性。点击上方菜单中 “工具 - 脚本 - DUC Settings panel” 调出配置面板。<br />
-勾选上你需要的面板，点击 Save，然后重启 Krita<br />
-此时打开 “配置 Krita” 窗口，在 “键盘快捷键” 中找到 “Scripts - Docker Under Cursor” ，就可以看到你启用的面板项<br />
-因为某些原因（懒）这里没有中文，不知道面板叫啥名请看下面的对照表。为面板显示设置一个快捷键后就可以使用了。<br />
-<br />
-<h3>对照表</h3>
-AnimationCurvesDocker  动画曲线<br />
-ArrangeDocker  矢量图形排列控制<br />
-ArtisticColorSelector  美术拾色器<br />
-ChannelDocker  通道<br />
-ColorSelectorNg  多功能拾色器<br />
-CompositionDocker  图层显示方案<br />
-DigitalMixer  颜色比例混合器<br />
-GamutMask  色域蒙版<br />
-GridDocker  网格与参考线<br />
-HistogramDocker  直方图<br />
-History   (历史)撤销历史<br />
-KisLayerBox  图层<br />
-LogDocker  日志查看器<br />
-LutDockerLUT   色彩管理<br />
-OnionSkinsDocker  绘图纸外观<br />
-OverviewDocker  导航器 = 总览图<br />
-PaletteDocker  色板<br />
-PatternDocker  图案<br />
-PresetDocker  笔刷预设<br />
-PresetHistory  笔刷预设历史<br />
-RecorderDocker  录像工具<br />
-SmallColorSelector  小型拾色器<br />
-Snapshot  图像版本快照<br />
-SpecificColorSelector  量化拾色器<br />
-StoryboardDocker  分镜头脚本<br />
-SvgSymbolCollectionDockerSVG  矢量图形库<br />
-TasksetDocker  操作流程<br />
-TimelineDocker  动画时间轴<br />
-ToolBox  工具箱<br />
-TouchDocker  触摸屏辅助按钮<br />
-comics_project_manager_docker  漫画项目管理<br />
-lastdocumentsdocker  最近图像列表<br />
-quick_settings_docker  笔刷常用数值一键切换面板<br />
-sharedtooldocker  工具选项<br />
-</body>
+        <h2>Usage</h2>
+        <ol>
+            <li>Open <strong>Tools → Scripts → DUC Settings panel</strong>.</li>
+            <li>Select the dockers you want to control and click <strong>Save</strong>.</li>
+            <li><strong>Restart Krita</strong> to load the selected docker actions.</li>
+            <li>Open <strong>Configure Krita → Keyboard Shortcuts → Scripts → Docker Under Cursor</strong> and assign shortcuts.</li>
+            <li>Press a docker's shortcut to show it at the cursor. Press it again to hide it or return it to its docked state.</li>
+        </ol>
+        <p>Shortcut entries use Krita's internal docker names. Pinning and canvas-only actions are listed under <strong>Docker Under Cursor Other</strong>.</p>
+
+        <h2 lang="zh-CN">使用方法</h2>
+        <ol lang="zh-CN">
+            <li>打开<strong>工具 → 脚本 → DUC Settings panel</strong>。</li>
+            <li>勾选需要控制的面板，点击 <strong>Save</strong>。</li>
+            <li><strong>重启 Krita</strong>，加载所选面板的快捷键动作。</li>
+            <li>打开<strong>配置 Krita → 键盘快捷键 → Scripts → Docker Under Cursor</strong>，为各面板分配快捷键。</li>
+            <li>按下面板快捷键，在光标位置显示面板；再次按下，则将其隐藏或停靠回主窗口。</li>
+        </ol>
+        <p lang="zh-CN">快捷键条目使用 Krita 内部的面板名称，可参考下方对照表。固定面板和切换画布模式的动作位于 <strong>Docker Under Cursor Other</strong> 分类中。</p>
+
+        <h2>Options / 行为选项</h2>
+        <dl>
+            <dt>Remember mouse position relative to docker</dt>
+            <dd>Reuse the cursor's relative position when showing a docker; otherwise, center the docker on the cursor.</dd>
+            <dd lang="zh-CN">记住光标在面板内的相对位置；关闭后，面板中心将对齐光标。</dd>
+            <dt>Keep docker inside the main window</dt>
+            <dd>Constrain the floating docker's position to the main window.</dd>
+            <dd lang="zh-CN">将浮动面板的位置限制在主窗口内。</dd>
+            <dt>Auto conceal docker after mouse leaves</dt>
+            <dd>Return or hide the floating docker when the cursor leaves it.</dd>
+            <dd lang="zh-CN">光标离开浮动面板后，自动还原或隐藏面板。</dd>
+        </dl>
+        <p>These options apply when you click <strong>Save</strong>. Changes to the enabled dockers require a restart.</p>
+        <p lang="zh-CN">上述选项在点击 <strong>Save</strong> 后立即生效；修改启用的面板列表后，需要重启 Krita。</p>
+
+        <h2>Pinning and canvas-only mode / 固定面板与画布模式</h2>
+        <p>Hover over a floating docker and press <strong>Ctrl + backtick (`)</strong> to pin or unpin it. A pinned docker's shortcut moves it between its pinned position and the cursor.</p>
+        <p>To preserve pinned dockers when switching canvas-only mode, assign <strong>Tab</strong> to <strong>DUC only canvas mode</strong> and remove any conflicting assignment.</p>
+        <p lang="zh-CN">将光标移到浮动面板上，按 <strong>Ctrl + 反引号（`）</strong> 可固定或取消固定面板。固定后，面板快捷键会让它在固定位置和光标位置之间切换。</p>
+        <p lang="zh-CN">若要在切换画布模式时保留固定面板，可将 <strong>Tab</strong> 绑定到 <strong>DUC only canvas mode</strong>，并移除冲突的绑定。</p>
+
+        <h2>Known issues / 已知问题</h2>
+        <p>Dockers with scroll bars may shrink after repeated floating and docking. Float the docker, then manually drag it back into the main window's docking area to restore its size.</p>
+        <p lang="zh-CN">带有滚动条的面板在反复浮动和停靠后，高度可能变小。将面板浮动后，手动拖回主窗口的停靠区域，即可恢复正常尺寸。</p>
+
+        <h2 lang="zh-CN">面板名称对照表</h2>
+        <p lang="zh-CN">名称与译名可能因 Krita 版本或所安装的插件而有所不同。</p>
+        <table lang="zh-CN">
+            <thead>
+                <tr><th>内部名称</th><th>面板标题</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>AnimationCurvesDocker</td><td>动画曲线</td></tr>
+                <tr><td>ArrangeDocker</td><td>矢量图形排列控制</td></tr>
+                <tr><td>ArtisticColorSelector</td><td>美术拾色器</td></tr>
+                <tr><td>ChannelDocker</td><td>通道</td></tr>
+                <tr><td>ColorSelectorNg</td><td>多功能拾色器</td></tr>
+                <tr><td>CompositionDocker</td><td>图层显示方案</td></tr>
+                <tr><td>DigitalMixer</td><td>颜色比例混合器</td></tr>
+                <tr><td>GamutMask</td><td>色域蒙版</td></tr>
+                <tr><td>GridDocker</td><td>网格与参考线</td></tr>
+                <tr><td>HistogramDocker</td><td>直方图</td></tr>
+                <tr><td>History</td><td>撤销历史</td></tr>
+                <tr><td>KisLayerBox</td><td>图层</td></tr>
+                <tr><td>LogDocker</td><td>日志查看器</td></tr>
+                <tr><td>LutDocker</td><td>LUT 色彩管理</td></tr>
+                <tr><td>OnionSkinsDocker</td><td>绘图纸外观</td></tr>
+                <tr><td>OverviewDocker</td><td>导航器 / 总览图</td></tr>
+                <tr><td>PaletteDocker</td><td>色板</td></tr>
+                <tr><td>PatternDocker</td><td>图案</td></tr>
+                <tr><td>PresetDocker</td><td>笔刷预设</td></tr>
+                <tr><td>PresetHistory</td><td>笔刷预设历史</td></tr>
+                <tr><td>RecorderDocker</td><td>录像工具</td></tr>
+                <tr><td>SmallColorSelector</td><td>小型拾色器</td></tr>
+                <tr><td>Snapshot</td><td>图像版本快照</td></tr>
+                <tr><td>SpecificColorSelector</td><td>量化拾色器</td></tr>
+                <tr><td>StoryboardDocker</td><td>分镜头脚本</td></tr>
+                <tr><td>SvgSymbolCollectionDocker</td><td>SVG 矢量图形库</td></tr>
+                <tr><td>TasksetDocker</td><td>操作流程</td></tr>
+                <tr><td>TimelineDocker</td><td>动画时间轴</td></tr>
+                <tr><td>ToolBox</td><td>工具箱</td></tr>
+                <tr><td>TouchDocker</td><td>触摸屏辅助按钮</td></tr>
+                <tr><td>comics_project_manager_docker</td><td>漫画项目管理</td></tr>
+                <tr><td>lastdocumentsdocker</td><td>最近图像列表</td></tr>
+                <tr><td>quick_settings_docker</td><td>笔刷常用数值一键切换面板</td></tr>
+                <tr><td>sharedtooldocker</td><td>工具选项</td></tr>
+            </tbody>
+        </table>
+    </body>
 </html>

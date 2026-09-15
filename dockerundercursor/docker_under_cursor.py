@@ -1,112 +1,111 @@
-from copy import copy
-import xml.etree.cElementTree as ET
+"""Register Krita actions and connect them to the window's dock widgets."""
+
+import xml.etree.ElementTree as ET
 
 from krita import *
 
-from dockerundercursor.action_hold_filter import ActionHoldFilter
-from dockerundercursor.docker_visibility_toggler import DockerVisibilityToggler
-from dockerundercursor.setting_panel import SettingPanel
-from dockerundercursor.docker_auto_hide_filter import DockerAutoHideFilter
+from .docker_auto_hide_filter import DockerAutoHideFilter
+from .docker_visibility_toggler import DockerVisibilityToggler
+from .setting_panel import SettingPanel
 
 
 class DockerUnderCursor(Extension):
-
-    def __init__(self, parent):
-        super().__init__(parent)
+    """Expose per-docker shortcuts, pinning, and plugin settings."""
 
     def setup(self):
-        pass
+        """Defer initialization until Krita creates a window and its actions."""
 
     def createActions(self, window):
-        # dynamic create docker toggle actions
+        """Implement Krita's action-registration callback."""
         self._create_docker_toggle_actions(window)
 
-        # create display setting panel action
-        action_1 = window.createAction(
-            "settingpanel", "DUC setting panel", "tools/scripts"
+        settings_action = window.createAction(
+            "settingpanel", "DUC Settings panel", "tools/scripts"
         )
-        action_1.triggered.connect(self._open_setting_panel)
+        settings_action.triggered.connect(self._open_setting_panel)
 
-        # create fix docker action
-        action_2 = window.createAction("pindocker", "", "")
-        action_2.triggered.connect(self._pin_docker)
+        pin_action = window.createAction("pindocker", "", "")
+        pin_action.triggered.connect(self._pin_docker)
 
-        # create toggle view mode action
-        action_3 = window.createAction(
+        canvas_mode_action = window.createAction(
             "togglecanvasmode", "DUC only canvas mode", "tools/scripts"
         )
-        action_3.triggered.connect(self._toggle_canvas_mode)
+        canvas_mode_action.triggered.connect(self._toggle_canvas_mode)
 
         Krita.instance().notifier().windowCreated.connect(self._final_setup)
 
     def _open_setting_panel(self):
-        setting = SettingPanel()
-        setting.exec()
+        settings = SettingPanel()
+        settings.exec()
 
     def _create_docker_toggle_actions(self, window):
-        tree = ET.parse(SettingPanel.file)
-        root = tree.getroot()
-        # n = window.qwindow().objectName()
-
-        for v in root.findall(".//Action/text"):
-            toggler = DockerVisibilityToggler(v.text)
-            action: QAction = window.createAction("duc_{0}".format(v.text), "", "")
+        root = ET.parse(SettingPanel.ACTION_FILE).getroot()
+        for action_text in root.findall(".//Action/text"):
+            toggler = DockerVisibilityToggler(action_text.text)
+            action = window.createAction("duc_{}".format(action_text.text), "", "")
             action.triggered.connect(toggler.trigger)
             toggler.action = action
 
     def _pin_docker(self):
-        for d in DockerVisibilityToggler.INSTANCES:
-            if d.is_cursor_in_docker():
-                if not d.pinned:
-                    d.pin()
+        for toggler in DockerVisibilityToggler.instances:
+            if toggler.is_cursor_in_docker():
+                if toggler.pinned:
+                    toggler.cancel_pin()
                 else:
-                    d.cancel_pin()
+                    toggler.pin()
                 break
 
     def _toggle_canvas_mode(self):
-        for d in DockerVisibilityToggler.INSTANCES:
-            if d.pinned:
-                if d.leave:
-                    DockerVisibilityToggler.PINDOCKERS[d] = d.pin_position()
-                else:
-                    DockerVisibilityToggler.PINDOCKERS[d] = d.widget.pos()
+        # Canvas-only mode changes visibility and clears pin state. Keep the
+        # original pinned positions so the triggered callback can restore them.
+        for toggler in DockerVisibilityToggler.instances:
+            if toggler.pinned:
+                position = (
+                    toggler.pin_position
+                    if toggler.away_from_pin
+                    else toggler.widget.pos()
+                )
+                DockerVisibilityToggler.pinned_positions[toggler] = position
         Krita.instance().action("view_show_canvas_only").trigger()
 
-    def _recovery_pin_status(self):
-        for d, pos in DockerVisibilityToggler.PINDOCKERS.items():
-            d.widget.setFloating(True)
-            d.widget.show()
-            d.widget.move(pos)
-            d.pin()
-        DockerVisibilityToggler.PINDOCKERS = {}
+    def _restore_pin_status(self):
+        for toggler, position in DockerVisibilityToggler.pinned_positions.items():
+            toggler.widget.setFloating(True)
+            toggler.widget.show()
+            toggler.widget.move(position)
+            toggler.pin()
+        DockerVisibilityToggler.pinned_positions.clear()
 
     def _final_setup(self):
-        for d in DockerVisibilityToggler.INSTANCES:
-            if not d.window:
-                qwin = Krita.instance().activeWindow().qwindow()
-                d.window = qwin.objectName()
-                d.widget = qwin.findChild(QDockWidget, d.name)
-                if d.widget:
-                    d.monitor = DockerAutoHideFilter(d)
-                    d.widget.installEventFilter(d.monitor)
-                    d.update_auto_hide()
-                    d.widget.visibilityChanged.connect(d.reset_pin)
-                    if d.widget.isFloating():
-                        # reset docker lock status
+        # Iterate over a copy: unavailable dockers are removed from the registry.
+        for toggler in DockerVisibilityToggler.instances[:]:
+            if not toggler.window_name:
+                window = Krita.instance().activeWindow().qwindow()
+                toggler.window_name = window.objectName()
+                toggler.widget = window.findChild(QDockWidget, toggler.name)
+                if toggler.widget:
+                    toggler.auto_hide_filter = DockerAutoHideFilter(toggler)
+                    toggler.widget.installEventFilter(toggler.auto_hide_filter)
+                    toggler.update_auto_hide()
+                    toggler.widget.visibilityChanged.connect(toggler.reset_pin)
+                    if toggler.widget.isFloating():
+                        # Unlock floating dockers restored by Krita's workspace.
                         lock_icon = Krita.instance().icon("docker_lock_b")
-                        for i in d.widget.titleBarWidget().children():
+                        for button in toggler.widget.titleBarWidget().children():
                             if (
-                                i.__class__ == QAbstractButton
-                                and i.icon().cacheKey() == lock_icon.cacheKey()
+                                button.__class__ == QAbstractButton
+                                and button.icon().cacheKey() == lock_icon.cacheKey()
                             ):
-                                i.setChecked(False)
+                                button.setChecked(False)
                 else:
-                    DockerVisibilityToggler.INSTANCES.remove(d)
-                    d.action.triggered.disconnect(d.trigger)
-                    Krita.instance().writeSetting("DockerUnderCursor", d.name, "0")
+                    DockerVisibilityToggler.instances.remove(toggler)
+                    toggler.action.triggered.disconnect(toggler.trigger)
+                    Krita.instance().writeSetting(
+                        "DockerUnderCursor", toggler.name, "0"
+                    )
 
         Krita.instance().action("view_show_canvas_only").triggered.connect(
-            self._recovery_pin_status
+            self._restore_pin_status
         )
         Krita.instance().notifier().windowCreated.disconnect(self._final_setup)
 

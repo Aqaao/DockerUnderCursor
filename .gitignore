@@ -1,3 +1,5 @@
 *.ffs_batch
+install.ps1
 .ropeproject/
-__pycache__
+__pycache__/
+.ruff_cache/

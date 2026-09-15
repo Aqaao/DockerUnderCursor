@@ -1,40 +1,47 @@
+"""Return floating dockers when the cursor leaves their bounds."""
+
+from typing import TYPE_CHECKING
+
 from krita import *
 
-from . import qt_event
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .docker_visibility_toggler import DockerVisibilityToggler
 
 
 class DockerAutoHideFilter(QObject):
+    """Handle auto-hide while avoiding interference with mouse drags."""
 
-    def __init__(self, obj):
+    def __init__(self, toggler: "DockerVisibilityToggler"):
         super().__init__()
-        self.docker_manager: "DockerVisibilityToggler" = obj
+        self.toggler = toggler
         self.mouse_pressed = False
         self.auto_conceal = False
 
     def eventFilter(self, obj, event):
+        """Implement Qt's event-filter callback for the managed docker."""
         if self.auto_conceal:
             if event.type() == QEvent.MouseButtonPress:
                 self.mouse_pressed = True
             if event.type() == QEvent.MouseButtonRelease:
                 self.mouse_pressed = False
-            if self.docker_manager.widget == obj and obj.isFloating() and not self.mouse_pressed:
-                # Leaves docker event.
+            if (
+                self.toggler.widget == obj
+                and obj.isFloating()
+                and not self.mouse_pressed
+            ):
                 if event.type() == QEvent.Leave:
-                    if not self.docker_manager.is_cursor_in_docker():
-                        if self.docker_manager.pinned:
-                            if self.docker_manager.leave:
-                                self.docker_manager.translocation()
+                    if not self.toggler.is_cursor_in_docker():
+                        if self.toggler.pinned:
+                            if self.toggler.away_from_pin:
+                                self.toggler.toggle_pin_position()
                             else:
                                 return False
                         else:
-                            self.docker_manager.docker_return()
-                # Block cursor shape toggle.
+                            self.toggler.restore_docker()
+                # Suppress resize-cursor changes at the floating docker's edge.
                 elif event.type() == QEvent.MouseMove:
-                    if event.pos().x() <= 1 or event.pos().x() >= obj.size().width() - 1:
+                    if event.pos().x() <= 1 or event.pos().x() >= obj.width() - 1:
                         return True
-                    elif event.pos().y() <= 1 or event.pos().y() >= obj.size().height() - 1:
+                    if event.pos().y() <= 1 or event.pos().y() >= obj.height() - 1:
                         return True
         return False

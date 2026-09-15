@@ -1,118 +1,120 @@
-from os import path
+"""Configure enabled dockers and persist positioning preferences."""
+
 import xml.etree.ElementTree as ET
+from pathlib import Path
+
 from krita import *
 
 from .docker_visibility_toggler import DockerVisibilityToggler
 
 
 class SettingPanel(QDialog):
+    """Save docker action definitions for Krita to load on its next start."""
 
-    file = path.dirname(path.realpath(__file__)) + '/dockerundercursor.action'
+    ACTION_FILE = Path(__file__).resolve().with_name("dockerundercursor.action")
 
     def __init__(self):
         super().__init__()
 
-        self.layout_1 = QVBoxLayout()
-        self.dockerlist = Krita.instance().dockers()
-        self._add_check_box()
+        self.docker_layout = QVBoxLayout()
+        self.dockers = Krita.instance().dockers()
+        self._add_docker_checkboxes()
 
-        self.groupbox = QGroupBox()
-        self.groupbox.setStyleSheet("QGroupBox {border:none}")
-        self.groupbox.setLayout(self.layout_1)
+        self.docker_group = QGroupBox()
+        self.docker_group.setStyleSheet("QGroupBox {border:none}")
+        self.docker_group.setLayout(self.docker_layout)
 
-        self.scrollarea = QScrollArea()
-        self.scrollarea.setAlignment(Qt.AlignHCenter)
-        # self.scrollarea.setFrameShape(QFrame.NoFrame)
-        self.scrollarea.setWidget(self.groupbox)
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setAlignment(Qt.AlignHCenter)
+        self.scroll_area.setWidget(self.docker_group)
 
-        self.tracecheckbox = QCheckBox(
-            "Remember mouse position relative to docker")
-        self.tracecheckbox.setToolTip(
-            "If false, the center point of docker will appear at mouse position")
-        if Krita.instance().readSetting("DockerUnderCursor", "TraceMousePosition", "False") == "True":
-            self.tracecheckbox.setChecked(True)
+        self.trace_checkbox = QCheckBox("Remember mouse position relative to docker")
+        self.trace_checkbox.setToolTip(
+            "When disabled, the docker is centered on the cursor."
+        )
+        self.trace_checkbox.setChecked(self._read_preference("TraceMousePosition"))
 
-        self.clampcheckbox = QCheckBox("Keep docker inside the main window")
-        self.clampcheckbox.setToolTip(
-            "If false, the docker can appear anywhere on screen, may be obscured")
-        if Krita.instance().readSetting("DockerUnderCursor", "ClampPosition", "False") == "True":
-            self.clampcheckbox.setChecked(True)
+        self.clamp_checkbox = QCheckBox("Keep docker inside the main window")
+        self.clamp_checkbox.setToolTip(
+            "When disabled, the docker may extend beyond the main window."
+        )
+        self.clamp_checkbox.setChecked(self._read_preference("ClampPosition"))
 
-        self.autoconcealcheckbox = QCheckBox(
-            "Auto conceal docker after mouse leaves")
-        self.autoconcealcheckbox.setToolTip(
-            "If false, you need to press shortcut key again to hide docker")
-        if Krita.instance().readSetting("DockerUnderCursor", "AutoConceal", "False") == "True":
-            self.autoconcealcheckbox.setChecked(True)
+        self.auto_conceal_checkbox = QCheckBox("Auto conceal docker after mouse leaves")
+        self.auto_conceal_checkbox.setToolTip(
+            "When disabled, press the shortcut again to return or hide the docker."
+        )
+        self.auto_conceal_checkbox.setChecked(self._read_preference("AutoConceal"))
 
-        self.savebutton = QPushButton("Save")
-        self.savebutton.clicked.connect(self._on_save_button_click)
+        self.save_button = QPushButton("Save")
+        self.save_button.clicked.connect(self._save_settings)
 
-        self.layout_2 = QVBoxLayout()
-        self.layout_2.addWidget(self.scrollarea)
-        self.layout_2.addWidget(self.tracecheckbox)
-        self.layout_2.addWidget(self.clampcheckbox)
-        self.layout_2.addWidget(self.autoconcealcheckbox)
-        self.layout_2.addWidget(self.savebutton)
+        self.main_layout = QVBoxLayout()
+        self.main_layout.addWidget(self.scroll_area)
+        self.main_layout.addWidget(self.trace_checkbox)
+        self.main_layout.addWidget(self.clamp_checkbox)
+        self.main_layout.addWidget(self.auto_conceal_checkbox)
+        self.main_layout.addWidget(self.save_button)
 
-        self.setLayout(self.layout_2)
+        self.setLayout(self.main_layout)
         self.resize(380, 800)
-        self.setWindowTitle("Settings")
+        self.setWindowTitle("Docker Under Cursor Settings")
 
-    def _add_check_box(self):
-        for i, v in enumerate(self.dockerlist):
-            self.layout_1.addWidget(QCheckBox(v.windowTitle()))
-            self.layout_1.itemAt(i).widget().setChecked(
-                self._read_docker_status(v.objectName()))
+    def _read_preference(self, key):
+        return Krita.instance().readSetting("DockerUnderCursor", key, "False") == "True"
 
-    def _on_save_button_click(self):
-        self.tree = ET.parse(self.file)
-        self.root = self.tree.getroot()
-        self._remove_action()
-        # ET.indent(self.tree,"    ") #At least python3.9
-        self.save()
-        self.tree.write(self.file, encoding='UTF-8',
-                        xml_declaration=True, short_empty_elements=False)
-        Krita.instance().writeSetting("DockerUnderCursor", "TraceMousePosition",
-                                      str(self.tracecheckbox.isChecked()))
-        DockerVisibilityToggler.TRACEMOUSE = str(
-            self.tracecheckbox.isChecked())
-        Krita.instance().writeSetting("DockerUnderCursor", "ClampPosition",
-                                      str(self.clampcheckbox.isChecked()))
-        DockerVisibilityToggler.CLAMPPOSITION = str(
-            self.clampcheckbox.isChecked())
-        Krita.instance().writeSetting("DockerUnderCursor", "AutoConceal",
-                                      str(self.autoconcealcheckbox.isChecked()))
-        DockerVisibilityToggler.AUTOCONCEAL = str(
-            self.autoconcealcheckbox.isChecked())
-        for v in DockerVisibilityToggler.INSTANCES:
-            v.mousepos = None
-            v.update_auto_hide()
+    def _add_docker_checkboxes(self):
+        for docker in self.dockers:
+            checkbox = QCheckBox(docker.windowTitle())
+            checkbox.setChecked(self._read_docker_status(docker.objectName()))
+            self.docker_layout.addWidget(checkbox)
+
+    def _save_settings(self):
+        tree = ET.parse(self.ACTION_FILE)
+        actions = tree.getroot()[0]
+        # Preserve the collection metadata while replacing enabled docker actions.
+        for action in actions.findall("Action"):
+            actions.remove(action)
+        self._save_docker_actions(actions)
+        ET.indent(tree, space="    ")
+        tree.write(
+            self.ACTION_FILE,
+            encoding="UTF-8",
+            xml_declaration=True,
+            short_empty_elements=False,
+        )
+
+        preferences = (
+            ("TraceMousePosition", "trace_mouse", self.trace_checkbox),
+            ("ClampPosition", "clamp_position", self.clamp_checkbox),
+            ("AutoConceal", "auto_conceal", self.auto_conceal_checkbox),
+        )
+        for key, attribute, checkbox in preferences:
+            value = str(checkbox.isChecked())
+            Krita.instance().writeSetting("DockerUnderCursor", key, value)
+            setattr(DockerVisibilityToggler, attribute, value)
+
+        # Preferences apply immediately; new shortcuts require a Krita restart.
+        for toggler in DockerVisibilityToggler.instances:
+            toggler.cursor_offset = None
+            toggler.update_auto_hide()
         self.close()
 
-    def save(self):
-        for i, v in enumerate(self.dockerlist):
-            if self.layout_1.itemAt(i).widget().isChecked():
-                self._write_docker_status(v.objectName(), "1")
-                self._write_action(v.objectName())
-            else:
-                self._write_docker_status(v.objectName(), "0")
+    def _save_docker_actions(self, actions):
+        for index, docker in enumerate(self.dockers):
+            enabled = self.docker_layout.itemAt(index).widget().isChecked()
+            Krita.instance().writeSetting(
+                "DockerUnderCursor", docker.objectName(), "1" if enabled else "0"
+            )
+            if enabled:
+                self._write_action(actions, docker.objectName())
 
     def _read_docker_status(self, name):
-        if Krita.instance().readSetting("DockerUnderCursor", name, "0") == "1":
-            return True
-        else:
-            return False
+        return Krita.instance().readSetting("DockerUnderCursor", name, "0") == "1"
 
-    def _write_docker_status(self, name, status):
-        Krita.instance().writeSetting("DockerUnderCursor", name, status)
-
-    def _remove_action(self):
-        for v in self.root[0].findall("Action"):
-            self.root[0].remove(v)
-
-    def _write_action(self, actionname):
-        element = ET.SubElement(self.root[0], "Action", {
-                                "name": "duc_{0}".format(actionname)})
-        ET.SubElement(element, "text").text = actionname
-        ET.SubElement(element, "shortcut").text = "none"
+    def _write_action(self, actions, docker_name):
+        action = ET.SubElement(
+            actions, "Action", {"name": "duc_{}".format(docker_name)}
+        )
+        ET.SubElement(action, "text").text = docker_name
+        ET.SubElement(action, "shortcut").text = "none"
