@@ -1,7 +1,5 @@
 """Register Krita actions and connect them to the window's dock widgets."""
 
-import xml.etree.ElementTree as ET
-
 from krita import *
 
 from .docker_auto_hide_filter import DockerAutoHideFilter
@@ -39,7 +37,7 @@ class DockerUnderCursor(Extension):
         settings.exec()
 
     def _create_docker_toggle_actions(self, window):
-        root = ET.parse(SettingPanel.ACTION_FILE).getroot()
+        root = SettingPanel.read_action_tree().getroot()
         for action_text in root.findall(".//Action/text"):
             toggler = DockerVisibilityToggler(action_text.text)
             action = window.createAction("duc_{}".format(action_text.text), "", "")

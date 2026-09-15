@@ -11,10 +11,30 @@ from .docker_visibility_toggler import DockerVisibilityToggler
 class SettingPanel(QDialog):
     """Save docker action definitions for Krita to load on its next start."""
 
-    ACTION_FILE = Path(__file__).resolve().with_name("dockerundercursor.action")
+    ACTION_TEMPLATE = Path(__file__).resolve().with_name("dockerundercursor.action")
+    WINDOW_TITLE = "Docker Under Cursor Settings"
+
+    @classmethod
+    def action_file(cls):
+        """Resolve Krita's resource directory rather than the plugin directory."""
+        resource_directory = Krita.instance().readSetting("", "ResourceDirectory", "")
+        return Path(resource_directory) / "actions" / cls.ACTION_TEMPLATE.name
+
+    @classmethod
+    def read_action_tree(cls):
+        action_file = cls.action_file()
+        # Use the bundled collection on first save, including legacy selections
+        # previously written to the plugin directory.
+        return ET.parse(action_file if action_file.is_file() else cls.ACTION_TEMPLATE)
 
     def __init__(self):
         super().__init__()
+
+        self.restart_warning = QLabel(
+            "Restart Krita to register all saved docker shortcuts."
+        )
+        self.restart_warning.setStyleSheet("color: #e6b800;")
+        self.restart_warning.setWordWrap(True)
 
         self.docker_layout = QVBoxLayout()
         self.dockers = Krita.instance().dockers()
@@ -46,10 +66,18 @@ class SettingPanel(QDialog):
         )
         self.auto_conceal_checkbox.setChecked(self._read_preference("AutoConceal"))
 
+        for checkbox in (
+            self.trace_checkbox,
+            self.clamp_checkbox,
+            self.auto_conceal_checkbox,
+        ):
+            checkbox.stateChanged.connect(self._mark_dirty)
+
         self.save_button = QPushButton("Save")
         self.save_button.clicked.connect(self._save_settings)
 
         self.main_layout = QVBoxLayout()
+        self.main_layout.addWidget(self.restart_warning)
         self.main_layout.addWidget(self.scroll_area)
         self.main_layout.addWidget(self.trace_checkbox)
         self.main_layout.addWidget(self.clamp_checkbox)
@@ -58,7 +86,31 @@ class SettingPanel(QDialog):
 
         self.setLayout(self.main_layout)
         self.resize(380, 800)
-        self.setWindowTitle("Docker Under Cursor Settings")
+        self.setWindowTitle(self.WINDOW_TITLE)
+        self._update_restart_warning()
+
+    def _mark_dirty(self):
+        self.setWindowTitle(self.WINDOW_TITLE + " *")
+
+    def _update_restart_warning(self):
+        """Prompt for initial setup or missing registrations of saved actions."""
+        action_file = self.action_file()
+        if not action_file.is_file():
+            self.restart_warning.setText(
+                "Select the dockers you want to use, then click Save."
+            )
+            self.restart_warning.setVisible(True)
+            return
+
+        root = ET.parse(action_file).getroot()
+        restart_required = any(
+            Krita.instance().action(action.attrib["name"]) is None
+            for action in root.findall(".//Action")
+        )
+        self.restart_warning.setText(
+            "Restart Krita to register all saved docker shortcuts."
+        )
+        self.restart_warning.setVisible(restart_required)
 
     def _read_preference(self, key):
         return Krita.instance().readSetting("DockerUnderCursor", key, "False") == "True"
@@ -67,22 +119,31 @@ class SettingPanel(QDialog):
         for docker in self.dockers:
             checkbox = QCheckBox(docker.windowTitle())
             checkbox.setChecked(self._read_docker_status(docker.objectName()))
+            checkbox.stateChanged.connect(self._mark_dirty)
             self.docker_layout.addWidget(checkbox)
 
     def _save_settings(self):
-        tree = ET.parse(self.ACTION_FILE)
+        tree = self.read_action_tree()
         actions = tree.getroot()[0]
         # Preserve the collection metadata while replacing enabled docker actions.
         for action in actions.findall("Action"):
             actions.remove(action)
         self._save_docker_actions(actions)
         ET.indent(tree, space="    ")
+        action_file = self.action_file()
+        action_file.parent.mkdir(parents=True, exist_ok=True)
         tree.write(
-            self.ACTION_FILE,
+            action_file,
             encoding="UTF-8",
             xml_declaration=True,
             short_empty_elements=False,
         )
+
+        for index, docker in enumerate(self.dockers):
+            enabled = self.docker_layout.itemAt(index).widget().isChecked()
+            Krita.instance().writeSetting(
+                "DockerUnderCursor", docker.objectName(), "1" if enabled else "0"
+            )
 
         preferences = (
             ("TraceMousePosition", "trace_mouse", self.trace_checkbox),
@@ -98,14 +159,12 @@ class SettingPanel(QDialog):
         for toggler in DockerVisibilityToggler.instances:
             toggler.cursor_offset = None
             toggler.update_auto_hide()
-        self.close()
+        self.setWindowTitle(self.WINDOW_TITLE)
+        self._update_restart_warning()
 
     def _save_docker_actions(self, actions):
         for index, docker in enumerate(self.dockers):
             enabled = self.docker_layout.itemAt(index).widget().isChecked()
-            Krita.instance().writeSetting(
-                "DockerUnderCursor", docker.objectName(), "1" if enabled else "0"
-            )
             if enabled:
                 self._write_action(actions, docker.objectName())
 

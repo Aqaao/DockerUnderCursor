@@ -7,7 +7,7 @@
     </head>
     <body>
         <h1>Docker Under Cursor / 在光标位置显示面板</h1>
-        <p>Version / 版本：1.1.1</p>
+        <p>Version / 版本：2.0</p>
         <p>Use keyboard shortcuts to show Krita dockers at the cursor position.</p>
         <p lang="zh-CN">通过快捷键将 Krita 面板浮动显示在光标位置。</p>
 
@@ -45,6 +45,10 @@
         </dl>
         <p>These options apply when you click <strong>Save</strong>. Changes to the enabled dockers require a restart.</p>
         <p lang="zh-CN">上述选项在点击 <strong>Save</strong> 后立即生效；修改启用的面板列表后，需要重启 Krita。</p>
+        <p>An asterisk (*) in the window title indicates unsaved changes. Saving clears it and keeps the window open. A yellow message appears at the top if saved docker actions are not yet fully registered in Krita.</p>
+        <p lang="zh-CN">窗口标题中的星号（*）表示有未保存的更改。保存后星号消失，窗口保持打开。如果已保存的面板动作尚未全部注册到 Krita，窗口顶部会显示黄色重启提示。</p>
+        <p>Generated shortcut definitions are saved as <code>actions/dockerundercursor.action</code> inside Krita's resource directory.</p>
+        <p lang="zh-CN">生成的快捷键定义保存在 Krita 资源目录下的 <code>actions/dockerundercursor.action</code> 中。</p>
 
         <h2>Pinning and canvas-only mode / 固定面板与画布模式</h2>
         <p>Hover over a floating docker and press <strong>Ctrl + backtick (`)</strong> to pin or unpin it. A pinned docker's shortcut moves it between its pinned position and the cursor.</p>

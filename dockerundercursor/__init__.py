@@ -4,4 +4,4 @@ from .docker_under_cursor import DockerUnderCursor
 
 __all__ = ["DockerUnderCursor"]
 
-__version__ = "1.1.1"
+__version__ = "2.0"
