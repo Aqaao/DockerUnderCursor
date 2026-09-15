@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING
 
 from krita import *
 
+from .qt_compat import EventType, key_event_sequence
+
 HOLD_THRESHOLD_SECONDS = 0.3
 
 if TYPE_CHECKING:
@@ -37,17 +39,9 @@ class ActionHoldFilter(QMdiArea):
 
     def _match_shortcuts(self, event: QKeyEvent) -> bool:
         if self._action:
-            match event.key():
-                case Qt.Key_Shift:
-                    released_key = QKeySequence(Qt.ShiftModifier).toString()
-                case Qt.Key_Control:
-                    released_key = QKeySequence(Qt.ControlModifier).toString()
-                case Qt.Key_Alt:
-                    released_key = QKeySequence(Qt.AltModifier).toString()
-                case _:
-                    released_key = QKeySequence(
-                        event.modifiers() | event.key()
-                    ).toString()
+            released_key = key_event_sequence(event).toString()
+            if not released_key:
+                return False
             for shortcut in self._action.shortcuts():
                 shortcut_key = shortcut.toString()
                 if released_key in shortcut_key or shortcut_key in released_key:
@@ -58,7 +52,7 @@ class ActionHoldFilter(QMdiArea):
         # Docking destroys the floating QWindow. Handling its release event
         # could access a deleted Qt object, so only process widget events.
         if not isinstance(obj, QWindow):
-            if event.type() == QEvent.KeyRelease:
+            if event.type() == EventType.KeyRelease:
                 if (
                     not event.isAutoRepeat()
                     and not self._key_released

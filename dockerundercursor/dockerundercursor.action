@@ -1,6 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <ActionCollection version="2" name="Scripts">
     <Actions category="Scripts">
-        <text>Docker Under Cursor</text>
+        <text>Docker Under Cursor / General</text>
+        <Action name="settingpanel">
+            <text>DUC Settings</text>
+            <shortcut>None</shortcut>
+        </Action>
+        <Action name="pindocker">
+            <text>DUC Pin/Unpin Docker</text>
+            <shortcut>Ctrl+`</shortcut>
+        </Action>
+        <Action name="togglecanvasmode">
+            <text>DUC Toggle Canvas-Only Mode</text>
+            <shortcut>None</shortcut>
+        </Action>
+    </Actions>
+    <Actions category="Scripts">
+        <text>Docker Under Cursor / Dockers</text>
     </Actions>
 </ActionCollection>

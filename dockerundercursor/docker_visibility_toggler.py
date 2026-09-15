@@ -3,6 +3,7 @@
 from krita import *
 
 from .action_hold_filter import action_hold_filter
+from .qt_compat import EventType, is_opengl_widget, mouse_move_event
 
 
 class DockerVisibilityToggler:
@@ -125,20 +126,13 @@ class DockerVisibilityToggler:
         """Refresh the canvas brush outline without moving the physical cursor."""
         cursor_position = QCursor.pos()
         widget = QApplication.widgetAt(cursor_position)
-        if widget is not None and widget.__class__ == QOpenGLWidget:
-            local_position = QPointF(widget.mapFromGlobal(cursor_position))
-            move_event = QMouseEvent(
-                QEvent.MouseMove,
-                local_position,
-                Qt.MouseButton.NoButton,
-                Qt.MouseButton.NoButton,
-                Qt.KeyboardModifier.NoModifier,
-            )
+        if is_opengl_widget(widget):
+            move_event = mouse_move_event(widget, cursor_position)
             QCoreApplication.postEvent(widget, move_event)
 
     def _send_leave_event(self):
         if self.is_cursor_in_docker():
-            QCoreApplication.postEvent(self.widget, QEvent(QEvent.Leave))
+            QCoreApplication.postEvent(self.widget, QEvent(EventType.Leave))
 
     def _record_cursor_position(self):
         # Auto-hide happens outside the docker; preserve the previous offset

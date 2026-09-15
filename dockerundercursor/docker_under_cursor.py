@@ -4,6 +4,7 @@ from krita import *
 
 from .docker_auto_hide_filter import DockerAutoHideFilter
 from .docker_visibility_toggler import DockerVisibilityToggler
+from .qt_compat import exec_dialog
 from .setting_panel import SettingPanel
 
 
@@ -34,13 +35,17 @@ class DockerUnderCursor(Extension):
 
     def _open_setting_panel(self):
         settings = SettingPanel()
-        settings.exec()
+        exec_dialog(settings)
 
     def _create_docker_toggle_actions(self, window):
-        root = SettingPanel.read_action_tree().getroot()
-        for action_text in root.findall(".//Action/text"):
-            toggler = DockerVisibilityToggler(action_text.text)
-            action = window.createAction("duc_{}".format(action_text.text), "", "")
+        tree = SettingPanel.read_action_tree()
+        for definition in tree.findall(SettingPanel.DOCKER_ACTIONS_PATH + "/Action"):
+            action_id = definition.get("name", "")
+            if not action_id.startswith(SettingPanel.DOCKER_ACTION_PREFIX):
+                continue
+            docker_name = action_id[len(SettingPanel.DOCKER_ACTION_PREFIX) :]
+            toggler = DockerVisibilityToggler(docker_name)
+            action = window.createAction(action_id, "", "")
             action.triggered.connect(toggler.trigger)
             toggler.action = action
 

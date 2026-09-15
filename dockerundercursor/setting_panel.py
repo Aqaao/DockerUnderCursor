@@ -1,17 +1,22 @@
 """Configure enabled dockers and persist positioning preferences."""
 
 import xml.etree.ElementTree as ET
+from copy import deepcopy
 from pathlib import Path
 
 from krita import *
 
 from .docker_visibility_toggler import DockerVisibilityToggler
+from .qt_compat import AlignmentFlag, PixelMetric, TextFormat
 
 
 class SettingPanel(QDialog):
     """Save docker action definitions for Krita to load at the next startup."""
 
     ACTION_TEMPLATE = Path(__file__).resolve().with_name("dockerundercursor.action")
+    DOCKER_ACTION_PREFIX = "duc_"
+    # Krita groups actions by <text>; all categories use the Scripts attribute.
+    DOCKER_ACTIONS_PATH = ".//Actions[text='Docker Under Cursor / Dockers']"
     WINDOW_TITLE = "Docker Under Cursor Settings"
 
     @classmethod
@@ -22,10 +27,51 @@ class SettingPanel(QDialog):
 
     @classmethod
     def read_action_tree(cls):
+        """Combine the bundled categories with previously generated actions."""
+        tree = cls.action_tree_for_krita(ET.parse(cls.ACTION_TEMPLATE))
+        docker_actions = tree.find(cls.DOCKER_ACTIONS_PATH)
+        if docker_actions is None:
+            raise ValueError("The action template must contain a Dockers category.")
         action_file = cls.action_file()
-        # Use the bundled collection on first save, including legacy selections
-        # previously written to the plugin directory.
-        return ET.parse(action_file if action_file.is_file() else cls.ACTION_TEMPLATE)
+        if action_file.is_file():
+            # Older generated files placed every docker under Scripts. Read by
+            # stable ID rather than display text or the old category structure.
+            saved_root = ET.parse(action_file).getroot()
+            for action in docker_actions.findall("Action"):
+                docker_actions.remove(action)
+            for action in saved_root.findall(".//Action"):
+                if action.get("name", "").startswith(cls.DOCKER_ACTION_PREFIX):
+                    docker_actions.append(action)
+        return tree
+
+    @staticmethod
+    def action_tree_for_krita(tree):
+        """Flatten nested template categories for Krita's action-file parser.
+
+        Krita reads only Actions directly below ActionCollection and Action
+        directly below each category. Keep the template hierarchy in category
+        labels so nested definitions are not silently ignored at startup.
+        """
+        source_root = tree.getroot()
+        root = ET.Element(source_root.tag, dict(source_root.attrib))
+
+        def append_category(category, parent_labels):
+            title = category.findtext("text") or category.get("category", "")
+            labels = parent_labels + [title]
+            children = category.findall("Actions")
+            actions = category.findall("Action")
+            if actions or not children:
+                attributes = dict(category.attrib)
+                attributes["category"] = "Scripts"
+                flattened = ET.SubElement(root, "Actions", attributes)
+                ET.SubElement(flattened, "text").text = " / ".join(labels)
+                flattened.extend(deepcopy(action) for action in actions)
+            for child in children:
+                append_category(child, labels)
+
+        for category in source_root.findall("Actions"):
+            append_category(category, [])
+        return ET.ElementTree(root)
 
     def __init__(self):
         super().__init__()
@@ -37,7 +83,7 @@ class SettingPanel(QDialog):
         self.restart_warning.setWordWrap(True)
 
         self.docker_layout = QVBoxLayout()
-        self.docker_layout.setAlignment(Qt.AlignTop)
+        self.docker_layout.setAlignment(AlignmentFlag.AlignTop)
         self.docker_checkboxes = []
         self.dockers = Krita.instance().dockers()
         self._add_docker_checkboxes()
@@ -47,7 +93,7 @@ class SettingPanel(QDialog):
         self.docker_group.setLayout(self.docker_layout)
 
         self.scroll_area = QScrollArea()
-        self.scroll_area.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.scroll_area.setAlignment(AlignmentFlag.AlignLeft | AlignmentFlag.AlignTop)
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setWidget(self.docker_group)
 
@@ -75,7 +121,7 @@ class SettingPanel(QDialog):
             self.clamp_checkbox,
             self.auto_conceal_checkbox,
         ):
-            checkbox.stateChanged.connect(self._mark_dirty)
+            checkbox.toggled.connect(self._mark_dirty)
 
         self.save_button = QPushButton("Save")
         self.save_button.clicked.connect(self._save_settings)
@@ -123,32 +169,32 @@ class SettingPanel(QDialog):
         for docker in self.dockers:
             checkbox = QCheckBox(docker.windowTitle())
             checkbox.setChecked(self._read_docker_status(docker.objectName()))
-            checkbox.stateChanged.connect(self._mark_dirty)
+            checkbox.toggled.connect(self._mark_dirty)
             self.docker_checkboxes.append(checkbox)
 
             docker_id = QLabel(docker.objectName())
-            docker_id.setTextFormat(Qt.PlainText)
-            docker_id.setAlignment(Qt.AlignLeft)
+            docker_id.setTextFormat(TextFormat.PlainText)
+            docker_id.setAlignment(AlignmentFlag.AlignLeft)
             docker_id.setStyleSheet("color: gray;")
             font = docker_id.font()
             font.setPointSizeF(max(1.0, font.pointSizeF() * 0.85))
             docker_id.setFont(font)
             # Align the ID with the checkbox text, after the check indicator.
             docker_id.setIndent(
-                checkbox.style().pixelMetric(QStyle.PM_IndicatorWidth)
-                + checkbox.style().pixelMetric(QStyle.PM_CheckBoxLabelSpacing)
+                checkbox.style().pixelMetric(PixelMetric.PM_IndicatorWidth)
+                + checkbox.style().pixelMetric(PixelMetric.PM_CheckBoxLabelSpacing)
             )
 
             option_layout = QVBoxLayout()
             option_layout.setSpacing(2)
-            option_layout.addWidget(checkbox, alignment=Qt.AlignLeft)
-            option_layout.addWidget(docker_id, alignment=Qt.AlignLeft)
+            option_layout.addWidget(checkbox, alignment=AlignmentFlag.AlignLeft)
+            option_layout.addWidget(docker_id, alignment=AlignmentFlag.AlignLeft)
             self.docker_layout.addLayout(option_layout)
 
     def _save_settings(self):
         tree = self.read_action_tree()
-        actions = tree.getroot()[0]
-        # Preserve the collection metadata while replacing enabled docker actions.
+        actions = tree.find(self.DOCKER_ACTIONS_PATH)
+        # Only rebuild the Dockers category; keep General actions and defaults.
         for action in actions.findall("Action"):
             actions.remove(action)
         self._save_docker_actions(actions)

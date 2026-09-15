@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING
 
 from krita import *
 
+from .qt_compat import EventType, mouse_event_position
+
 if TYPE_CHECKING:
     from .docker_visibility_toggler import DockerVisibilityToggler
 
@@ -20,16 +22,16 @@ class DockerAutoHideFilter(QObject):
     def eventFilter(self, obj, event):
         """Implement Qt's event-filter callback for the managed docker."""
         if self.auto_conceal:
-            if event.type() == QEvent.MouseButtonPress:
+            if event.type() == EventType.MouseButtonPress:
                 self.mouse_pressed = True
-            if event.type() == QEvent.MouseButtonRelease:
+            if event.type() == EventType.MouseButtonRelease:
                 self.mouse_pressed = False
             if (
                 self.toggler.widget == obj
                 and obj.isFloating()
                 and not self.mouse_pressed
             ):
-                if event.type() == QEvent.Leave:
+                if event.type() == EventType.Leave:
                     if not self.toggler.is_cursor_in_docker():
                         if self.toggler.pinned:
                             if self.toggler.away_from_pin:
@@ -39,9 +41,10 @@ class DockerAutoHideFilter(QObject):
                         else:
                             self.toggler.restore_docker()
                 # Suppress resize-cursor changes at the floating docker's edge.
-                elif event.type() == QEvent.MouseMove:
-                    if event.pos().x() <= 1 or event.pos().x() >= obj.width() - 1:
+                elif event.type() == EventType.MouseMove:
+                    position = mouse_event_position(event)
+                    if position.x() <= 1 or position.x() >= obj.width() - 1:
                         return True
-                    if event.pos().y() <= 1 or event.pos().y() >= obj.height() - 1:
+                    if position.y() <= 1 or position.y() >= obj.height() - 1:
                         return True
         return False
